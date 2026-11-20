@@ -8,6 +8,10 @@ Das Add-on ist bewusst eine „reine UI": Es gibt keine HA-Entitäten, keine MQT
 
 Nein. Es gibt keine Bankverbindung, kein FinTS/HBCI und keinen CSV-Import. Wiederkehrende Buchungen werden ausschließlich aus selbst angelegten Regeln unter **Fixkosten** erzeugt – also lokal und manuell gepflegt.
 
+## Ist die Oberfläche für die Home-Assistant-Mobile-App geeignet?
+
+Ja. Ab 0.12.1 passt sich das Layout an die Bildschirmbreite an: Die Navigation ist horizontal scrollbar, Buttons und Eingabefelder sind mindestens 44 px hoch und Tabellen werden auf schmalen Displays zu beschrifteten Karten. Das Desktop-Layout bleibt unverändert.
+
 ## Warum ist das Panel nur für Admins sichtbar?
 
 Finanzdaten sind sensibel. Deshalb ist `panel_admin: true` gesetzt. Multi-User und rollenbasierte Rechte sind bewusst nicht in v1 enthalten.

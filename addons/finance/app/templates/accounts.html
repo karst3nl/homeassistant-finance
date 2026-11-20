@@ -11,11 +11,11 @@
     <tbody>
       {% for account in accounts %}
       <tr>
-        <td>{{ account.name }}{% if not account.active %}<small>inaktiv</small>{% endif %}</td>
-        <td>{{ account.type }}</td>
-        <td>{{ account.currency }}</td>
-        <td class="right mono">{{ account.balance_cents | cents }}</td>
-        <td class="right">
+        <td data-label="Name">{{ account.name }}{% if not account.active %}<small>inaktiv</small>{% endif %}</td>
+        <td data-label="Typ">{{ account.type }}</td>
+        <td data-label="Währung">{{ account.currency }}</td>
+        <td data-label="Saldo" class="right mono">{{ account.balance_cents | cents }}</td>
+        <td class="right actions-cell">
           <div class="table-actions">
             <a href="ui/accounts/{{ account.id }}/edit" title="Konto bearbeiten">Bearbeiten</a>
             <form method="post" action="ui/accounts/{{ account.id }}/delete" class="inline">

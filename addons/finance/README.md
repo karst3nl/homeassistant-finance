@@ -13,6 +13,7 @@ Ein vollständig lokales Add-on für persönliche Finanzen. Es läuft komplett a
 - Dashboard mit Saldo und Monatsausgaben
 - Auswertungen mit Monatsvergleich, Kategorie-Anteilen und Saldo-Verlauf als SVG-Charts
 - Bedienung rein über die Oberfläche – servergerendert, ohne JavaScript und ohne CDN
+- Desktop-Layout bleibt erhalten; auf kleinen Touch-Displays passt sich Navigation und Tabellenansicht automatisch an
 
 ## Bedienung
 

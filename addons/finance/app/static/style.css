@@ -158,7 +158,155 @@ a.button {
 .budget-edit input { width: 88px; padding: 5px 7px; }
 .budget-edit button { padding: 6px 10px; font-size: 12px; }
 
-@media (max-width: 600px) {
-  .chart-with-legend { grid-template-columns: 1fr; }
+/* Mobile/Ingress-Ansicht: Desktop-Layout bleibt unverändert, alles unterhalb
+   von 700 px wird für kleine Touch-Displays umgebaut. */
+@media (max-width: 700px) {
+  body { font-size: 16px; -webkit-text-size-adjust: 100%; }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 6px;
+    padding: 10px max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left));
+  }
+  .brand { font-size: 16px; }
+  nav {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+    gap: 8px;
+    margin: 0 -12px;
+    padding: 4px 12px 6px;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav a {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--muted);
+    font-size: 14px;
+    white-space: nowrap;
+    text-decoration: none;
+    scroll-snap-align: start;
+  }
+  nav a.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  main { padding: 12px; gap: 12px; }
+  .card { padding: 14px; border-radius: 10px; }
+  .card h2 { font-size: 16px; }
+  .cards { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .value { font-size: 24px; }
+
+  .form-grid { grid-template-columns: 1fr; gap: 12px; }
+  .form-grid .wide { grid-column: auto; }
+  label { font-size: 13px; }
+  input, select { min-height: 44px; padding: 10px 12px; font-size: 16px; }
+  button, a.button { min-height: 44px; padding: 10px 16px; font-size: 16px; }
+  .actions { justify-content: stretch; }
+  .actions button, .actions a.button { width: 100%; text-align: center; }
+  .section-head { gap: 8px; }
+  .section-head a.button { width: 100%; text-align: center; }
+  .period-nav a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 24px;
+  }
+  .legend { flex-wrap: wrap; gap: 10px; }
+  .budget-edit { flex-wrap: wrap; }
+  .budget-edit input {
+    flex: 1 1 120px;
+    width: auto;
+    min-height: 44px;
+    padding: 8px 10px;
+    font-size: 16px;
+  }
+  .budget-edit button { min-height: 44px; font-size: 14px; }
+
+  .chart-with-legend { grid-template-columns: 1fr; gap: 12px; }
   .donut { margin: 0 auto 12px; }
+  .axis { font-size: 18px; }
+}
+
+/* Tabellen werden auf schmalen Displays zu gut lesbaren Karten. Die
+   Beschriftung kommt aus data-label, die Desktop-Tabelle bleibt erhalten. */
+@media (max-width: 640px) {
+  .card table, .card thead, .card tbody, .card tr, .card th, .card td { display: block; }
+  .card thead { display: none; }
+  .card tbody { display: grid; gap: 10px; }
+  .card tbody tr {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: var(--bg);
+  }
+  .card td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    border: 0;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+  .card td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .card td small, .card td .progress { flex: 1 1 100%; }
+  .card td.actions-cell {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-top: 6px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .card td.actions-cell::before { content: none; }
+  .card .table-actions { flex-wrap: wrap; justify-content: flex-start; gap: 8px 16px; }
+  .card .table-actions a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 4px;
+  }
+  .card .table-actions button.danger {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 10px;
+    font-size: 20px;
+  }
+  .card td.actions-cell form.inline { display: flex; width: 100%; margin-top: 8px; }
+  .card td.actions-cell .budget-edit input { flex: 1 1 auto; width: auto; }
+  .card td.actions-cell .budget-edit button { flex: 0 0 auto; }
+}
+
+/* Auch auf größeren Touch-Geräten (Tablets im Querformat) ausreichend. */
+@media (pointer: coarse) {
+  nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; }
+  button, a.button { min-height: 44px; }
+  button.danger { min-width: 44px; min-height: 44px; }
+  .card .table-actions a { display: inline-flex; align-items: center; min-height: 44px; }
 }

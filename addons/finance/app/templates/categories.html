@@ -11,9 +11,9 @@
     <tbody>
       {% for category in categories %}
       <tr>
-        <td>{{ category.name }}</td>
-        <td>{{ 'Einnahme' if category.type == 'income' else 'Ausgabe' }}</td>
-        <td class="right">
+        <td data-label="Name">{{ category.name }}</td>
+        <td data-label="Art">{{ 'Einnahme' if category.type == 'income' else 'Ausgabe' }}</td>
+        <td class="right actions-cell">
           <form method="post" action="ui/categories/{{ category.id }}/delete" class="inline">
             <button type="submit" class="danger" title="Kategorie löschen">×</button>
           </form>

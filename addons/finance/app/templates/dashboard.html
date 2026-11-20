@@ -22,9 +22,9 @@
     <tbody>
       {% for account in accounts %}
       <tr>
-        <td>{{ account.name }}</td>
-        <td>{{ account.type }}</td>
-        <td class="right mono">{{ account.balance_cents | cents }}</td>
+        <td data-label="Konto">{{ account.name }}</td>
+        <td data-label="Typ">{{ account.type }}</td>
+        <td data-label="Saldo" class="right mono">{{ account.balance_cents | cents }}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -63,14 +63,14 @@
     <tbody>
       {% for entry in recent %}
       <tr>
-        <td class="mono">{{ entry.booking_date }}</td>
-        <td>
+        <td data-label="Datum" class="mono">{{ entry.booking_date }}</td>
+        <td data-label="Gegenstelle">
           {{ entry.counterparty or entry.description or '–' }}
           {% if entry.transfer_id %}<small>Umbuchung</small>{% endif %}
         </td>
-        <td>{{ entry.account_name }}</td>
-        <td>{{ entry.category_name or '–' }}</td>
-        <td class="right mono {{ 'negative' if entry.amount_cents < 0 else 'positive' }}">
+        <td data-label="Konto">{{ entry.account_name }}</td>
+        <td data-label="Kategorie">{{ entry.category_name or '–' }}</td>
+        <td data-label="Betrag" class="right mono {{ 'negative' if entry.amount_cents < 0 else 'positive' }}">
           {{ entry.amount_cents | cents }}
         </td>
       </tr>

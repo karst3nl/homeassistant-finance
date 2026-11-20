@@ -11,7 +11,8 @@
 - `addons/finance/app/recurring.py` – Fixkosten-Regeln, Terminlogik und Buchungserzeugung
 - `addons/finance/app/transfers.py` – Umbuchungen und die beiden verknüpften Buchungen
 - `addons/finance/app/migrations/` – nummerierte SQLite-Migrationen
-- `tests/` – pytest-Integrationstests gegen temporäre Datenbanken
+- `tests/` – pytest-Integrationstests gegen temporäre Datenbanken, inklusive `test_responsive.py`
+- `addons/finance/app/static/style.css` – HA-Theme-Farben und responsive Regeln ab 700 px / 640 px
 
 Ein Prozess, eine Datenbankdatei, keine JavaScript-Build-Tools. Laufzeit-Abhängigkeiten sind in `requirements-dev.txt` identisch zum Dockerfile gepinnt.
 

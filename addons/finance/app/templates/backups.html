@@ -34,10 +34,10 @@
     <tbody>
       {% for item in backups %}
       <tr>
-        <td class="mono">{{ item.created }}</td>
-        <td class="mono">{{ item.name }}</td>
-        <td class="right mono">{{ item.size }}</td>
-        <td class="right">
+        <td data-label="Erstellt" class="mono">{{ item.created }}</td>
+        <td data-label="Datei" class="mono">{{ item.name }}</td>
+        <td data-label="Größe" class="right mono">{{ item.size }}</td>
+        <td class="right actions-cell">
           <div class="table-actions">
             <a href="ui/backups/{{ item.name }}/download" title="Backup herunterladen">Herunterladen</a>
             <form method="post" action="ui/backups/{{ item.name }}/delete" class="inline">

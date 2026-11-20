@@ -1,7 +1,7 @@
 # Roadmap: Home-Assistant-Finance
 
 **Stand:** 2026-11-20  
-**Status:** Phase 0–5 abgeschlossen (0.9.0 veröffentlicht und auf dem Pi 4 getestet); Phase 6 ergänzt Umbuchungen (0.11.0), Phase 7 herunterladbare Backups (0.12.0)  
+**Status:** Phase 0–5 abgeschlossen (0.9.0 veröffentlicht und auf dem Pi 4 getestet); Phase 6 ergänzt Umbuchungen (0.11.0), Phase 7 herunterladbare Backups (0.12.0), Phase 8 mobile/touchfreundliche Oberfläche (0.12.1)  
 **Repo:** GitHub, Custom Repository für Home Assistant
 
 ---
@@ -39,6 +39,7 @@ Ein vollständig lokales, quelloffenes Add-on zur Verwaltung persönlicher Finan
 | Nach v1 (0.10.0) | Bearbeitung von Konten/Buchungen, Fixkosten mit automatischer Buchung |
 | Nach v1 (0.11.0) | Umbuchungen zwischen Konten als zusammenhängendes Paar |
 | Nach v1 (0.12.0) | Herunterladbare Backups direkt aus der Oberfläche |
+| Nach v1 (0.12.1) | Responsive, touchfreundliche Darstellung für die HA-Mobile-App |
 
 **Ressourcenziele (auf dem Pi 4 messbar):** Image < 80 MB · RAM < 80 MB · Start < 5 s · CPU im Leerlauf ~0 %.
 
@@ -134,7 +135,7 @@ tests/
 
 Die Reihenfolge ist absichtlich: erst Datenkern, dann UI. Eine hübsche Oberfläche über einer unklaren Datenbank ist der häufigste Grund für spätere Rewrites.
 
-**Fortschritt:** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ (UI bewusst ohne JavaScript/HTMX umgesetzt) · Phase 3 ✅ · Phase 4 ✅ (0.9.0 veröffentlicht, Pi-4-Test bestanden) · Phase 5 ✅ (0.10.1) · Phase 6 ✅ (Umbuchungen in 0.11.0) · Phase 7 ✅ (Backups-Download in 0.12.0).
+**Fortschritt:** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ (UI bewusst ohne JavaScript/HTMX umgesetzt) · Phase 3 ✅ · Phase 4 ✅ (0.9.0 veröffentlicht, Pi-4-Test bestanden) · Phase 5 ✅ (0.10.1) · Phase 6 ✅ (Umbuchungen in 0.11.0) · Phase 7 ✅ (Backups-Download in 0.12.0) · Phase 8 ✅ (Mobile-Optimierung in 0.12.1).
 
 | Phase | Inhalt | Meilenstein / Definition of Done | ca. Aufwand* |
 |---|---|---|---|
@@ -146,7 +147,8 @@ Die Reihenfolge ist absichtlich: erst Datenkern, dann UI. Eine hübsche Oberflä
 | **5 – Bearbeitung & Fixkosten** | Konten/Buchungen bearbeiten ✅, Fixkosten-Seite mit automatischer Buchung ✅, Migration 002 ✅, Doku ✅ | 0.10.1 veröffentlicht, Fixkosten auf dem Pi 4 geprüft | 1–2 d |
 | **6 – Umbuchungen** | Umbuchungs-Seite ✅, zwei verknüpfte Buchungen ✅, Migration 003 ✅, Stats/Reports bereinigt ✅, Doku ✅ | 0.11.0 veröffentlicht, Umbuchungen auf dem Pi 4 geprüft | 1–2 d |
 | **7 – Backups** | Menüpunkt **Backups** ✅, direkter SQLite-Download ✅, gespeicherte Kopien mit Download/Löschen ✅, strikte Dateinamensprüfung ✅, Doku ✅ | 0.12.0 veröffentlicht, Download auf dem Pi 4 geprüft | 1–2 d |
-| **8 – Optional (später)** | CSV-Import mit Mapping/Dedup, FinTS/HBCI, Belege, Sparziele, HA-Sensoren, Multi-User | Nur nach Feedback der ersten Nutzer | offen |
+| **8 – Mobile-Optimierung** | Responsive Navigation ✅, Touch-Ziele ≥ 44 px ✅, Tabellen als beschriftete Karten ✅, Viewport/Safe-Area ✅, Doku ✅ | 0.12.1 veröffentlicht, in 390‑px‑Ansicht geprüft | 1 d |
+| **9 – Optional (später)** | CSV-Import mit Mapping/Dedup, FinTS/HBCI, Belege, Sparziele, HA-Sensoren, Multi-User | Nur nach Feedback der ersten Nutzer | offen |
 
 \* Grobe Schätzungen für eine Person, keine Zusage.
 

@@ -2,6 +2,14 @@
 
 Alle nennenswerten Änderungen werden hier dokumentiert. Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionierung an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.12.1] - 2026-11-20
+
+### Hinzugefügt
+
+- Responsive Anpassung für die Home-Assistant-Mobile-App: Touch-Ziele mindestens 44 px, horizontal scrollbare Navigation und Tabellen als beschriftete Karten auf schmalen Displays
+- Viewport berücksichtigt Safe-Area-Insets; Formulare, Buttons und Charts skalieren auf kleine Bildschirme
+- Navigation bleibt in der Breite und scrollt intern – kein horizontaler Seitenüberlauf auf dem Handy
+
 ## [0.12.0] - 2026-11-20
 
 ### Hinzugefügt

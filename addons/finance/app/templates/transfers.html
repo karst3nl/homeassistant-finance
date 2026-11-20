@@ -14,12 +14,12 @@
     <tbody>
       {% for transfer in transfers %}
       <tr>
-        <td class="mono">{{ transfer.booking_date }}</td>
-        <td>{{ transfer.from_account_name }}</td>
-        <td>{{ transfer.to_account_name }}</td>
-        <td class="right mono">{{ transfer.amount_cents | cents }}</td>
-        <td>{{ transfer.description or '–' }}</td>
-        <td class="right">
+        <td data-label="Datum" class="mono">{{ transfer.booking_date }}</td>
+        <td data-label="Von">{{ transfer.from_account_name }}</td>
+        <td data-label="Nach">{{ transfer.to_account_name }}</td>
+        <td data-label="Betrag" class="right mono">{{ transfer.amount_cents | cents }}</td>
+        <td data-label="Beschreibung">{{ transfer.description or '–' }}</td>
+        <td class="right actions-cell">
           <div class="table-actions">
             <a href="ui/transfers/{{ transfer.id }}/edit" title="Umbuchung bearbeiten">Bearbeiten</a>
             <form method="post" action="ui/transfers/{{ transfer.id }}/delete" class="inline">

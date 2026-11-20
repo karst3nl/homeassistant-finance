@@ -37,9 +37,9 @@
       <tbody>
         {% for category in categories %}
         <tr>
-          <td><i class="swatch" style="background: {{ category.color }}"></i>{{ category.name }}</td>
-          <td class="right mono">{{ category.total_cents | cents }}</td>
-          <td class="right mono">{{ category.share }} %</td>
+          <td data-label="Kategorie"><i class="swatch" style="background: {{ category.color }}"></i>{{ category.name }}</td>
+          <td data-label="Betrag" class="right mono">{{ category.total_cents | cents }}</td>
+          <td data-label="Anteil" class="right mono">{{ category.share }} %</td>
         </tr>
         {% endfor %}
       </tbody>

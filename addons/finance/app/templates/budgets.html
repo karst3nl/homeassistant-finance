@@ -17,17 +17,17 @@
     <tbody>
       {% for budget in budgets %}
       <tr>
-        <td>{{ budget.category_name }}</td>
-        <td class="right mono">{{ budget.limit_cents | cents }}</td>
-        <td class="right mono">{{ budget.spent_cents | cents }}</td>
-        <td>
+        <td data-label="Kategorie">{{ budget.category_name }}</td>
+        <td data-label="Limit" class="right mono">{{ budget.limit_cents | cents }}</td>
+        <td data-label="Ausgegeben" class="right mono">{{ budget.spent_cents | cents }}</td>
+        <td data-label="Fortschritt">
           <div class="progress">
             <div class="progress-fill {{ budget.state }}" style="width: {{ budget.bar_percent }}%"></div>
           </div>
           <small>{{ budget.percent }} %{% if budget.state == 'over' %} ·
             {{ (budget.remaining_cents * -1) | cents }} über Limit{% endif %}</small>
         </td>
-        <td>
+        <td class="actions-cell">
           <form method="post" action="ui/budgets/{{ budget.id }}" class="inline budget-edit">
             <input type="hidden" name="period" value="{{ period }}" />
             <input type="text" name="limit" inputmode="decimal" value="{{ budget.limit_cents | amount }}"

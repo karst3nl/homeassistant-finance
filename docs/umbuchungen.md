@@ -36,4 +36,8 @@ Die Kontostände und der Saldo-Verlauf enthalten die Umbuchungen selbstverständ
 
 Die einzelnen Buchungen einer Umbuchung können nicht separat bearbeitet oder gelöscht werden; die Oberfläche verlinkt stattdessen direkt auf die Umbuchung. Ein Konto kann nicht gelöscht werden, solange es an einer Umbuchung beteiligt ist.
 
+## Wiederkehrende Umbuchungen
+
+Seit 0.14.0 können Umbuchungen auch als Regel unter **Fixkosten** angelegt werden: **Art = Umbuchung**, Quellkonto, Zielkonto, Betrag und Intervall festlegen. Das Add-on erzeugt dann zu jedem Termin automatisch dasselbe Buchungspaar wie eine manuell angelegte Umbuchung. Pro Regel und Monat (bzw. Jahr) entsteht höchstens eine Umbuchung; pausierte Regeln buchen nichts. Bereits erzeugte Umbuchungen bleiben erhalten, wenn die Regel gelöscht wird. Details: [fixkosten.md](fixkosten.md#wiederkehrende-umbuchung).
+
 Die interne API unter `/api/transfers` ist wie die übrigen `/api/...`-Endpunkte nur innerhalb des Add-ons erreichbar.

@@ -58,13 +58,30 @@ def _values(payload: dict, old: dict | None = None) -> dict:
     def optional_text(key: str, limit: int) -> str:
         return take(key, lambda v: optional_str({key: v}, key, limit), required=False) or ""
 
+    direction = take("direction", lambda v: _choice(v, "direction", recurring.DIRECTIONS))
+
+    if direction == "transfer":
+        if "to_account_id" in payload:
+            to_account_id = required_int(
+                {"to_account_id": payload["to_account_id"]}, "to_account_id"
+            )
+        elif old is not None:
+            to_account_id = old["to_account_id"]
+        else:
+            raise bad("'to_account_id' ist erforderlich")
+    else:
+        to_account_id = None
+
     return {
         "name": take("name", lambda v: required_str({"name": v}, "name")),
         "amount_cents": take("amount_cents", _positive_cents),
-        "direction": take("direction", lambda v: _choice(v, "direction", recurring.DIRECTIONS)),
+        "direction": direction,
         "interval": take("interval", lambda v: _choice(v, "interval", recurring.INTERVALS)),
         "account_id": take("account_id", lambda v: required_int({"account_id": v}, "account_id")),
-        "category_id": take("category_id", _optional_id, required=False),
+        "to_account_id": to_account_id,
+        "category_id": (
+            None if direction == "transfer" else take("category_id", _optional_id, required=False)
+        ),
         "start_date": take("start_date", lambda v: parse_date(v, "start_date")),
         "counterparty": optional_text("counterparty", 200),
         "description": optional_text("description", 500),

@@ -72,6 +72,18 @@ def test_tabellen_haben_beschriftungen_fuer_die_kartenansicht(client: TestClient
         },
     )
     client.post(
+        "/api/recurring",
+        json={
+            "name": "Sparrate",
+            "amount_cents": 25000,
+            "direction": "transfer",
+            "interval": "monthly",
+            "account_id": account["id"],
+            "to_account_id": other["id"],
+            "start_date": "2026-11-01",
+        },
+    )
+    client.post(
         "/api/transfers",
         json={
             "from_account_id": account["id"],

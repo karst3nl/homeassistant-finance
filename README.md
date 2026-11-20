@@ -4,13 +4,13 @@
 
 Ein schlankes, vollständig lokales Home-Assistant-Add-on für persönliche Finanzen. Kein Cloud-Konto, keine Bankverbindung, keine zusätzlichen Add-ons – nur ein Webserver-Prozess, eine SQLite-Datei und eine Oberfläche in Home Assistant.
 
-> **Status:** Version **0.9.0** ist veröffentlicht und auf dem Raspberry Pi 4 getestet. **0.13.0** ergänzt ein eigenes Monatsgehalt neben den Fixkosten, außerdem Bearbeitung, Umbuchungen, Backups und eine mobile Oberfläche. Plan: [ROADMAP.md](ROADMAP.md).
+> **Status:** Version **0.9.0** ist veröffentlicht und auf dem Raspberry Pi 4 getestet. **0.14.0** ergänzt wiederkehrende Umbuchungen in den Fixkosten, außerdem ein eigenes Monatsgehalt, Bearbeitung, Backups und eine mobile Oberfläche. Plan: [ROADMAP.md](ROADMAP.md).
 
 ## Umfang in v1
 
 - Konten und Kategorien verwalten und bearbeiten
 - Buchungen manuell erfassen, bearbeiten und löschen
-- Monatliche und jährliche Fixkosten mit automatischer Buchung ([Anleitung](docs/fixkosten.md))
+- Monatliche und jährliche Fixkosten mit automatischer Buchung – inklusive wiederkehrender Umbuchungen zwischen Konten ([Anleitung](docs/fixkosten.md))
 - Monatsgehalt als eigener Bereich mit automatischer Einnahmebuchung ([Anleitung](docs/monatsgehalt.md))
 - Umbuchungen zwischen Konten als zusammenhängendes Buchungspaar ([Anleitung](docs/umbuchungen.md))
 - Herunterladbare Backups und konsistente SQLite-Kopien ([Anleitung](docs/backup.md))
@@ -89,6 +89,7 @@ Die Repository-URL `https://github.com/karst3nl/homeassistant-finance` steht in 
 - `0.12.0`: Menüpunkt **Backups** mit herunterladbaren SQLite-Kopien.
 - `0.12.1`: Mobile/touchfreundliche Oberfläche für die Home-Assistant-App.
 - `0.13.0`: Eigener Menüpunkt **Monatsgehalt** mit automatischer Einnahmebuchung.
+- `0.14.0`: Fixkostenregeln können als **Umbuchung** zwischen zwei Konten angelegt werden.
 
 Ein Release publiziert `.github/workflows/release.yaml`: Es baut und signiert die Images für `aarch64`/`amd64`, pusht die Version und `latest` nach GHCR und veröffentlicht das Multi-Arch-Manifest. Das GHCR-Paket ist öffentlich. Das Image wird ausschließlich über das Custom Repository installiert; ein lokaler Build ist nicht nötig.
 

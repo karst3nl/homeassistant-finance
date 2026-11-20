@@ -343,7 +343,7 @@ def test_migration_erhaelt_bestehende_daten(db_path: Path) -> None:
     init_db(db_path)
 
     with connect(db_path) as connection:
-        assert connection.execute("PRAGMA user_version").fetchone()[0] == 4
+        assert connection.execute("PRAGMA user_version").fetchone()[0] == 5
         tables = {
             row["name"]
             for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")

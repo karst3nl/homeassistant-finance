@@ -1,6 +1,6 @@
 # Fixkosten und wiederkehrende Buchungen
 
-Seit Version 0.10.0 verwaltet Finance wiederkehrende Posten in einer eigenen Seite **Fixkosten**. Aus jeder Regel erzeugt das Add-on automatisch ganz normale Buchungen – ohne externen Dienst, ohne Timer-Prozess und ohne Netzwerkzugriff. Gehalt gehört seit 0.13.0 nicht mehr hierher, sondern auf die Seite **Monatsgehalt** ([Anleitung](monatsgehalt.md)).
+Seit Version 0.10.0 verwaltet Finance wiederkehrende Posten in einer eigenen Seite **Fixkosten**. Aus jeder Regel erzeugt das Add-on automatisch ganz normale Buchungen – ohne externen Dienst, ohne Timer-Prozess und ohne Netzwerkzugriff. Gehalt gehört seit 0.13.0 nicht mehr hierher, sondern auf die Seite **Monatsgehalt** ([Anleitung](monatsgehalt.md)). Seit 0.14.0 kann eine Regel auch eine wiederkehrende **Umbuchung** zwischen zwei Konten sein.
 
 ## Beispiel
 
@@ -16,6 +16,16 @@ Miete 900 € monatlich und Versicherung 120 € jährlich:
 
 Für das monatliche Gehalt bitte **Monatsgehalt** verwenden; dort wird der Auszahlungstag festgelegt und die Einnahme automatisch monatlich gebucht.
 
+## Wiederkehrende Umbuchung
+
+Seit 0.14.0 steht bei **Art** zusätzlich **Umbuchung** zur Verfügung. Damit legst du fest, dass ein Betrag regelmäßig von einem Konto auf ein anderes übertragen wird:
+
+1. **Art** → *Umbuchung* wählen.
+2. Unter **Konto / Quellkonto** das abgebende Konto und unter **Zielkonto** das empfangende Konto auswählen (zwei verschiedene Konten).
+3. Betrag, Intervall und erstes Fälligkeitsdatum wie gewohnt angeben. Eine Kategorie wird bei Umbuchungen nicht benötigt.
+
+Pro Fälligkeit entsteht ein ganz normales Umbuchungspaar: Eine negative Buchung auf dem Quellkonto und eine positive auf dem Zielkonto. Der Gesamtsaldo bleibt gleich; die Buchungen zählen nicht als Einnahme oder Ausgabe und erscheinen unter **Buchungen** mit „Umbuchung“. Details: [umbuchungen.md](umbuchungen.md).
+
 ## Wann wird gebucht?
 
 - Beim **Start des Add-ons** und bei jedem Zugriff auf die Oberfläche (auch beim `/healthz`-Watchdog des Supervisors).
@@ -23,7 +33,7 @@ Für das monatliche Gehalt bitte **Monatsgehalt** verwenden; dort wird der Ausza
 - Ein Datum in der **Vergangenheit** bucht alle seitdem fälligen Termine nach (aus Gründen der Sicherheit höchstens 120 pro Lauf und Regel).
 - `recurring_rule_id` + `recurring_period` sind eindeutig: mehrfache Läufe erzeugen **keine Duplikate**, auch nicht nach einem Neustart oder einem Backup-Restore.
 
-Monatsenden werden auf die tatsächliche Monatslänge begrenzt: der 31.01. wird im Februar zum 28./29., im März wieder zum 31.
+Monatsenden werden auf die tatsächliche Monatslänge begrenzt: Ein 31.01. wird im Februar zum 28./29.; die Folge rechnet ab diesem gekürzten Datum weiter.
 
 ## Regeln bearbeiten und pausieren
 

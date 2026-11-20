@@ -1,6 +1,7 @@
 {% set selected_direction = form.direction or 'expense' %}
 {% set selected_interval = form.interval or 'monthly' %}
 {% set selected_account = form.account_id | string if form.account_id else '' %}
+{% set selected_to_account = form.to_account_id | string if form.to_account_id else '' %}
 {% set selected_category = form.category_id | string if form.category_id else '' %}
 <label>
   Name
@@ -12,6 +13,7 @@
   <select name="direction">
     <option value="expense" {% if selected_direction == 'expense' %}selected{% endif %}>Ausgabe</option>
     <option value="income" {% if selected_direction == 'income' %}selected{% endif %}>Einnahme</option>
+    <option value="transfer" {% if selected_direction == 'transfer' %}selected{% endif %}>Umbuchung</option>
   </select>
 </label>
 <label>
@@ -27,7 +29,7 @@
          value="{{ form.amount or '' }}" required />
 </label>
 <label>
-  Konto
+  Konto / Quellkonto
   <select name="account_id" required>
     {% for account in accounts %}
     <option value="{{ account.id }}" {% if selected_account == account.id | string %}selected{% endif %}>
@@ -35,6 +37,18 @@
     </option>
     {% endfor %}
   </select>
+</label>
+<label>
+  Zielkonto
+  <select name="to_account_id">
+    <option value="">– nur bei Umbuchung –</option>
+    {% for account in accounts %}
+    <option value="{{ account.id }}" {% if selected_to_account == account.id | string %}selected{% endif %}>
+      {{ account.name }}
+    </option>
+    {% endfor %}
+  </select>
+  <small>Nur für die Art „Umbuchung“ – dann wird von Quell- auf Zielkonto übertragen.</small>
 </label>
 <label>
   Erstes Fälligkeitsdatum
@@ -59,6 +73,7 @@
       {% endfor %}
     </optgroup>
   </select>
+  <small>Bei einer Umbuchung wird keine Kategorie verwendet.</small>
 </label>
 <label>
   Gegenstelle
@@ -78,5 +93,6 @@
 </div>
 <p class="wide muted">
   Ein Datum in der Vergangenheit bucht alle seitdem fälligen Termine nach.
+  Bei „Umbuchung“ entsteht pro Termin ein Buchungspaar zwischen den Konten; der Gesamtsaldo bleibt gleich.
   Bereits erzeugte Buchungen bleiben erhalten, wenn die Regel gelöscht wird.
 </p>

@@ -6,7 +6,7 @@ Ein vollständig lokales Add-on für persönliche Finanzen. Es läuft komplett a
 
 - Konten und Kategorien anlegen und bearbeiten
 - Einnahmen und Ausgaben manuell erfassen, filtern, bearbeiten und löschen
-- Monatliche und jährliche Fixkosten: Regeln pflegen und fällige Buchungen automatisch erzeugen
+- Monatliche und jährliche Fixkosten: Regeln pflegen und fällige Buchungen automatisch erzeugen – auch als wiederkehrende Umbuchung zwischen zwei Konten
 - Monatsgehalt als eigener Bereich – bewusst nicht bei den Fixkosten – mit automatischer Einnahmebuchung
 - Umbuchungen zwischen zwei Konten als zusammenhängendes Buchungspaar
 - Herunterladbare Backups: aktuelle Datenbank direkt speichern oder Kopien verwalten

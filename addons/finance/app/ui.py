@@ -862,7 +862,7 @@ def _recurring_values(form: dict[str, str]) -> tuple[dict, list[str]]:
 
     direction = form.get("direction", "expense")
     if direction not in recurring.DIRECTIONS:
-        errors.append("Bitte Ausgabe oder Einnahme wählen.")
+        errors.append("Bitte Ausgabe, Einnahme oder Umbuchung wählen.")
         direction = "expense"
 
     interval = form.get("interval", "monthly")
@@ -882,8 +882,20 @@ def _recurring_values(form: dict[str, str]) -> tuple[dict, list[str]]:
     if account_id is None:
         errors.append("Bitte ein Konto auswählen.")
 
+    to_account_value = form.get("to_account_id", "")
+    to_account_id = _positive_id(to_account_value) if to_account_value else None
+    if direction == "transfer":
+        if to_account_id is None:
+            errors.append("Bitte ein Zielkonto auswählen.")
+        elif to_account_id == account_id:
+            errors.append("Quell- und Zielkonto müssen unterschiedlich sein.")
+
     category_value = form.get("category_id", "")
-    category_id = _positive_id(category_value) if category_value else None
+    category_id = (
+        None
+        if direction == "transfer"
+        else (_positive_id(category_value) if category_value else None)
+    )
 
     try:
         start_date = parse_date(form.get("start_date", ""), "start_date")
@@ -897,6 +909,7 @@ def _recurring_values(form: dict[str, str]) -> tuple[dict, list[str]]:
         "interval": interval,
         "amount_cents": amount,
         "account_id": account_id,
+        "to_account_id": to_account_id if direction == "transfer" else None,
         "category_id": category_id,
         "start_date": start_date,
         "counterparty": form.get("counterparty", "").strip(),
@@ -935,6 +948,7 @@ def _recurring_edit_context(rule_id: int, form: dict | None = None) -> dict:
             **rule,
             "amount": _amount_input(rule["amount_cents"]),
             "account_id": str(rule["account_id"]),
+            "to_account_id": str(rule["to_account_id"]) if rule["to_account_id"] else "",
             "category_id": str(rule["category_id"]) if rule["category_id"] else "",
             "active": "1" if rule["active"] else "0",
         }

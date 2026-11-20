@@ -2,6 +2,19 @@
 
 Alle nennenswerten Änderungen werden hier dokumentiert. Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionierung an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.14.0] - 2026-11-20
+
+### Hinzugefügt
+
+- Fixkostenregeln können jetzt als Art **Umbuchung** angelegt werden: Betrag, Quellkonto, Zielkonto und Intervall festlegen
+- Aus einer solchen Regel entsteht pro Fälligkeit ein normales Umbuchungspaar; Herkunft und Zeitraum werden am Transfer gespeichert
+- Neue Migration 005, erweiterte Fixkosten-Seite, API-Validierung und eigene Tests für wiederkehrende Umbuchungen
+
+### Geändert
+
+- Die Fixkostenübersicht zeigt „Geplante Umbuchungen / Monat“ und die Kontoverbindung `Quelle → Ziel`
+- Kategorien werden bei Umbuchungsregeln nicht verwendet; bereits erzeugte Umbuchungen bleiben beim Löschen einer Regel erhalten
+
 ## [0.13.0] - 2026-11-20
 
 ### Hinzugefügt

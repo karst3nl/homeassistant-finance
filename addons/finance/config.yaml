@@ -1,5 +1,5 @@
 name: "Finance"
-version: "0.13.0"
+version: "0.14.0"
 slug: "finance"
 description: "Lokale Verwaltung persönlicher Finanzen – schlank für HA OS auf dem Raspberry Pi"
 url: "https://github.com/karst3nl/homeassistant-finance"

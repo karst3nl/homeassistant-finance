@@ -11,13 +11,17 @@
     <p class="value positive">{{ summary.income_cents | cents }}</p>
   </article>
   <article class="card">
+    <h2>Geplante Umbuchungen / Monat</h2>
+    <p class="value">{{ summary.transfer_cents | cents }}</p>
+  </article>
+  <article class="card">
     <h2>Regeln</h2>
     <p class="value">{{ summary.rule_count }}</p>
   </article>
 </section>
 
 <section class="card">
-  <h2>Fixkosten und wiederkehrende Einnahmen</h2>
+  <h2>Fixkosten, wiederkehrende Einnahmen und Umbuchungen</h2>
   {% if rules %}
   <table>
     <thead>
@@ -31,16 +35,25 @@
       <tr>
         <td data-label="Name">
           {{ rule.name }}
+          {% if rule.direction == 'transfer' %}<small>Umbuchung</small>{% endif %}
           {% if not rule.active %}<small>pausiert</small>{% endif %}
-          {% if rule.counterparty %}<small>{{ rule.counterparty }}</small>{% endif %}
+          {% if rule.counterparty and rule.direction != 'transfer' %}<small>{{ rule.counterparty }}</small>{% endif %}
         </td>
-        <td data-label="Betrag" class="right mono {{ 'negative' if rule.direction == 'expense' else 'positive' }}">
+        <td data-label="Betrag" class="right mono {{ 'negative' if rule.direction == 'expense' else ('positive' if rule.direction == 'income' else '') }}">
           {{ rule.amount_cents | cents }}
         </td>
         <td data-label="Intervall">{{ 'Monatlich' if rule.interval == 'monthly' else 'Jährlich' }}</td>
         <td data-label="Nächste Fälligkeit" class="mono">{{ rule.next_due }}</td>
-        <td data-label="Konto">{{ rule.account_name }}</td>
-        <td data-label="Kategorie">{{ rule.category_name or '–' }}</td>
+        <td data-label="Konto">
+          {% if rule.direction == 'transfer' %}
+          {{ rule.account_name }} → {{ rule.to_account_name }}
+          {% else %}
+          {{ rule.account_name }}
+          {% endif %}
+        </td>
+        <td data-label="Kategorie">
+          {% if rule.direction == 'transfer' %}–{% else %}{{ rule.category_name or '–' }}{% endif %}
+        </td>
         <td class="right actions-cell">
           <div class="table-actions">
             <a href="ui/recurring/{{ rule.id }}/edit" title="Regel bearbeiten">Bearbeiten</a>

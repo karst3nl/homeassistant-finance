@@ -30,7 +30,7 @@ Das würde die Buchungen verwaist lassen. Konto und Buchungen müssen zuerst kon
 
 ## Wie funktionieren die automatischen Buchungen bei Fixkosten?
 
-Die Regeln unter **Fixkosten** enthalten nur Name, Betrag, Intervall und Fälligkeitsdatum. Beim Start des Add-ons und bei jedem Zugriff prüft Finance, welche Termine fällig sind, und legt daraus ganz normale Buchungen an. Ein eindeutiger Schlüssel verhindert Duplikate. Details: [fixkosten.md](fixkosten.md).
+Die Regeln unter **Fixkosten** enthalten nur Name, Betrag, Intervall und Fälligkeitsdatum. Beim Start des Add-ons und bei jedem Zugriff prüft Finance, welche Termine fällig sind, und legt daraus ganz normale Buchungen an. Ein eindeutiger Schlüssel verhindert Duplikate. Seit 0.14.0 kann eine Regel auch als **Umbuchung** zwei Konten verbinden. Details: [fixkosten.md](fixkosten.md).
 
 ## Warum steht mein Gehalt nicht bei den Fixkosten?
 

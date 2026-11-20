@@ -228,7 +228,7 @@ def test_migration_erweitert_bestehende_datenbank(db_path: Path) -> None:
         assert "transfer_id" in columns
         assert "salary_rule_id" in columns
         assert "salary_period" in columns
-        assert connection.execute("PRAGMA user_version").fetchone()[0] == 4
+        assert connection.execute("PRAGMA user_version").fetchone()[0] == 5
         assert connection.execute("SELECT COUNT(*) FROM accounts").fetchone()[0] == 1
 
 

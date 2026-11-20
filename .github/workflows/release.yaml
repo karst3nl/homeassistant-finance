@@ -1,0 +1,121 @@
+name: Release
+
+# Baut und veröffentlicht die Multi-Arch-Images in GHCR.
+# Auslösung: GitHub Release publizieren (Tag vX.Y.Z) oder manuell mit version.
+# Die Version in addons/finance/config.yaml ist die einzige Wahrheitsquelle;
+# bei einem Release muss der Tag dazu passen.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version zum Bauen (leer = Version aus config.yaml)"
+        required: false
+        type: string
+
+env:
+  ARCHITECTURES: '["aarch64", "amd64"]'
+  IMAGE_NAME: finance
+
+jobs:
+  prepare:
+    name: Version und Matrix vorbereiten
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Abhängigkeiten installieren
+        run: pip install pyyaml==6.0.3
+
+      - name: Version aus config.yaml lesen und prüfen
+        id: meta
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import os
+          import sys
+
+          import yaml
+
+          config = yaml.safe_load(open("addons/finance/config.yaml", encoding="utf-8"))
+          version = config["version"]
+          image = config["image"]
+
+          if "YOUR_GITHUB_USER" in image or "YOUR_GITHUB_USER" in config["url"]:
+              sys.exit("Fehler: YOUR_GITHUB_USER muss vor dem Release ersetzt werden.")
+          if image != f"ghcr.io/{os.environ['REPOSITORY_OWNER'].lower()}/finance":
+              sys.exit(f"Fehler: unerwartetes image in config.yaml: {image}")
+          if os.environ.get("REQUESTED_VERSION"):
+              version = os.environ["REQUESTED_VERSION"]
+          tag = os.environ.get("RELEASE_TAG")
+          if tag and tag != f"v{version}":
+              sys.exit(f"Fehler: Release-Tag {tag} passt nicht zur Version {version}.")
+          print(f"version={version}")
+          PY
+
+      - name: Build-Matrix erstellen
+        id: matrix
+        uses: home-assistant/builder/actions/prepare-multi-arch-matrix@2026.09.0
+        with:
+          architectures: ${{ env.ARCHITECTURES }}
+          image-name: ${{ env.IMAGE_NAME }}
+
+  build:
+    name: Image für ${{ matrix.arch }} bauen
+    needs: prepare
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Image bauen und pushen
+        uses: home-assistant/builder/actions/build-image@2026.09.0
+        with:
+          arch: ${{ matrix.arch }}
+          context: addons/finance
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          image: ${{ matrix.image }}
+          image-tags: |
+            ${{ needs.prepare.outputs.version }}
+            latest
+          push: "true"
+          skip-existing: ${{ needs.prepare.outputs.version }}
+          version: ${{ needs.prepare.outputs.version }}
+
+  manifest:
+    name: Multi-Arch-Manifest veröffentlichen
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    steps:
+      - name: Manifest erstellen und signieren
+        uses: home-assistant/builder/actions/publish-multi-arch-manifest@2026.09.0
+        with:
+          architectures: ${{ env.ARCHITECTURES }}
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+          image-name: ${{ env.IMAGE_NAME }}
+          image-tags: |
+            ${{ needs.prepare.outputs.version }}
+            latest
+          skip-existing: ${{ needs.prepare.outputs.version }}

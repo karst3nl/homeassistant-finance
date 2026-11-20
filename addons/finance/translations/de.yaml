@@ -1,0 +1,6 @@
+configuration:
+  log_level:
+    name: Protokollstufe
+    description: >-
+      Steuert die Ausführlichkeit der Logs. "info" ist der Normalbetrieb;
+      "debug" nur für die Fehlersuche. Buchungsinhalte werden nie geloggt.

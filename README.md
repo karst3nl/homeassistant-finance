@@ -36,6 +36,7 @@ Ausführlich: [docs/installation.md](docs/installation.md).
 - [Häufige Fragen](docs/faq.md)
 - [Entwicklung](docs/entwicklung.md)
 - [Performance und Pi-4-Messung](docs/performance.md)
+- [Sicherheitsrichtlinie](SECURITY.md)
 
 ## Entwicklung
 
@@ -49,6 +50,9 @@ ruff format --check .
 yamllint -c .yamllint .
 python scripts/validate_config.py
 python scripts/bench.py
+
+# oder alle Prüfungen gemeinsam:
+PYTHON="$PWD/.venv/bin/python" scripts/check.sh
 ```
 
 Die Datenbank liegt in Home Assistant unter `/data/finance.db`. Für lokale Entwicklung lässt sie sich mit `FINANCE_DB_PATH` überschreiben; `FINANCE_RESTRICT_INGRESS=0` deaktiviert die Proxy-IP-Sperre.

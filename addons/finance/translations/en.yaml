@@ -1,0 +1,6 @@
+configuration:
+  log_level:
+    name: Log level
+    description: >-
+      Controls log verbosity. "info" is for normal operation; use "debug"
+      only for troubleshooting. Transaction contents are never logged.

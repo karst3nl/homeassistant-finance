@@ -14,13 +14,15 @@ Release-Kandidat für v1.0. Noch nicht veröffentlicht: finale Repository-URL, G
 - Streng validierter `X-Ingress-Path` (kein Pfad mehr zu externen Hosts möglich)
 - Release-Workflow mit den komponierbaren `home-assistant/builder`-Actions für `aarch64` und `amd64`, Signierung und GHCR-Manifest
 - `pip-audit` in CI sowie `scripts/bench.py` für reproduzierbare Performance-Messungen
+- Dependabot für pip und GitHub Actions, `scripts/check.sh` als Sammelprüfung, `SECURITY.md` sowie Issue-/PR-Vorlagen
+- Konsistenztests für Version, Image, Repository-URL, Badge, Übersetzungen und Dockerfile
 - Dokumentation zu Installation, Backup, Datenschutz, FAQ, Entwicklung und Performance
 
 ### Geändert
 
 - Add-on verweist auf ein GHCR-Image statt lokalem Build; `run.sh` übernimmt den Uvicorn-Start
 - Basisimage und Architektur in der Roadmap an das tatsächliche Dockerfile angepasst
-- 62 automatisierte Tests, alle Checks grün
+- 68 automatisierte Tests, alle Checks grün
 
 ## [0.3.0] - 2026-11-19
 

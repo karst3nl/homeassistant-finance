@@ -1,0 +1,44 @@
+name: Build
+
+# Bei Add-on-Änderungen: Konfiguration und Dockerfile validieren.
+# Das Bauen und Veröffentlichen der Images passiert in release.yaml.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "addons/finance/**"
+      - "repository.yaml"
+      - "scripts/validate_config.py"
+      - ".github/workflows/build.yaml"
+  pull_request:
+    paths:
+      - "addons/finance/**"
+      - "repository.yaml"
+      - "scripts/validate_config.py"
+      - ".github/workflows/build.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Abhängigkeiten installieren
+        run: pip install pyyaml==6.0.3
+
+      - name: Add-on-Konfiguration validieren
+        run: python scripts/validate_config.py
+
+      - name: Dockerfile-Syntax prüfen
+        run: |
+          docker buildx version
+          docker buildx build --check addons/finance

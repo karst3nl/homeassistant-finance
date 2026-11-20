@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Budgets · Finanzen{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h2>Budgets · {{ period_label }}</h2>
+    <a href="ui/reports?period={{ period }}">Auswertungen</a>
+  </div>
+  {% if budgets %}
+  <table>
+    <thead>
+      <tr>
+        <th>Kategorie</th><th class="right">Limit</th><th class="right">Ausgegeben</th>
+        <th>Fortschritt</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for budget in budgets %}
+      <tr>
+        <td>{{ budget.category_name }}</td>
+        <td class="right mono">{{ budget.limit_cents | cents }}</td>
+        <td class="right mono">{{ budget.spent_cents | cents }}</td>
+        <td>
+          <div class="progress">
+            <div class="progress-fill {{ budget.state }}" style="width: {{ budget.bar_percent }}%"></div>
+          </div>
+          <small>{{ budget.percent }} %{% if budget.state == 'over' %} ·
+            {{ (budget.remaining_cents * -1) | cents }} über Limit{% endif %}</small>
+        </td>
+        <td>
+          <form method="post" action="ui/budgets/{{ budget.id }}" class="inline budget-edit">
+            <input type="hidden" name="period" value="{{ period }}" />
+            <input type="text" name="limit" inputmode="decimal" value="{{ budget.limit_cents | amount }}"
+                   aria-label="Neues Limit für {{ budget.category_name }}" />
+            <button type="submit">Speichern</button>
+          </form>
+          <form method="post" action="ui/budgets/{{ budget.id }}/delete" class="inline">
+            <input type="hidden" name="period" value="{{ period }}" />
+            <button type="submit" class="danger" title="Budget löschen">×</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Noch keine Budgets für diesen Monat.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Neues Budget</h2>
+  {% if not categories %}
+  <p>Für ein Budget muss zuerst eine <a href="ui/categories">Ausgabekategorie angelegt</a> werden.</p>
+  {% else %}
+  <form method="post" action="ui/budgets" class="form-grid">
+    <label>
+      Monat
+      <input type="month" name="period" value="{{ form.period or period }}" required />
+    </label>
+    <label>
+      Kategorie
+      <select name="category_id" required>
+        {% for category in categories %}
+        <option value="{{ category.id }}" {% if form.category_id == category.id|string %}selected{% endif %}>
+          {{ category.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Monatliches Limit
+      <input type="text" name="limit" inputmode="decimal" placeholder="0,00"
+             value="{{ form.limit or '' }}" required />
+    </label>
+    <div class="wide actions"><button type="submit">Budget anlegen</button></div>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

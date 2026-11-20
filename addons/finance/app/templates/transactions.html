@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Buchungen · Finanzen{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>Buchungen</h2>
+  <form method="get" class="form-grid compact">
+    <label>
+      Konto
+      <select name="account_id">
+        <option value="">alle</option>
+        {% for account in accounts %}
+        <option value="{{ account.id }}" {% if filters.account_id == account.id|string %}selected{% endif %}>
+          {{ account.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Von <input type="date" name="date_from" value="{{ filters.date_from or '' }}" /></label>
+    <label>Bis <input type="date" name="date_to" value="{{ filters.date_to or '' }}" /></label>
+    <label>Suche <input type="text" name="search" value="{{ filters.search or '' }}" /></label>
+    <div class="actions"><button type="submit">Filtern</button></div>
+  </form>
+</section>
+
+<section class="card">
+  {% if transactions %}
+  <table>
+    <thead>
+      <tr>
+        <th>Datum</th><th>Gegenstelle</th><th>Konto</th><th>Kategorie</th>
+        <th class="right">Betrag</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in transactions %}
+      <tr>
+        <td class="mono">{{ entry.booking_date }}</td>
+        <td>
+          {{ entry.counterparty or entry.description or '–' }}
+          {% if entry.description and entry.counterparty %}<small>{{ entry.description }}</small>{% endif %}
+        </td>
+        <td>{{ entry.account_name }}</td>
+        <td>{{ entry.category_name or '–' }}</td>
+        <td class="right mono {{ 'negative' if entry.amount_cents < 0 else 'positive' }}">
+          {{ entry.amount_cents | cents }}
+        </td>
+        <td class="right">
+          <form method="post" action="ui/transactions/{{ entry.id }}/delete" class="inline">
+            <button type="submit" class="danger" title="Buchung löschen">×</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Keine Buchungen gefunden.</p>
+  {% endif %}
+</section>
+{% endblock %}

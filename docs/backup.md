@@ -1,0 +1,41 @@
+# Backup und Restore
+
+Alle Daten liegen in einer einzigen SQLite-Datei: `/data/finance.db`. Home Assistant sichert das Verzeichnis `/data` dieses Add-ons bei einem vollständigen Backup mit.
+
+## Warum ein Snapshot nötig ist
+
+SQLite nutzt den WAL-Modus. Beim Kopieren der Datenbank während des laufenden Betriebs könnten Änderungen in `-wal`/`-shm`-Dateien fehlen. Deshalb erzeugt das Add-on vor jedem Backup über `backup_pre` einen konsistenten Snapshot:
+
+```text
+python3 /app/backup.py pre   → /data/finance.db.snapshot
+python3 /app/backup.py post  → entfernt den Snapshot wieder
+```
+
+`sqlite3.Connection.backup()` liest dabei einen transaktional konsistenten Zustand – auch wenn gerade Buchungen geschrieben werden. Der Snapshot ist eine normale SQLite-Datei und wird vom Supervisor mitgesichert.
+
+## Backup erstellen
+
+In Home Assistant: **Einstellungen → System → Backups → Backup erstellen**. Das Add-on muss dazu nicht gestoppt werden (`backup: hot`).
+
+## Restore
+
+1. Backup in Home Assistant wiederherstellen.
+2. Add-on starten.
+3. Falls nur die Datenbank manuell zurückgespielt wurde: `/data/finance.db.snapshot` nach `/data/finance.db` kopieren und das Add-on neu starten.
+
+Nach dem Start prüft das Add-on `PRAGMA user_version` und wendet fehlende Migrationen automatisch an. Ein Downgrade auf eine ältere Version ist nicht vorgesehen.
+
+## Prüfen, ob alles da ist
+
+```bash
+# Im Container / auf dem Gerät mit sqlite3
+sqlite3 /data/finance.db "SELECT COUNT(*) FROM transactions;"
+```
+
+Alternativ: Die Oberfläche zeigt unter **Buchungen** alle Einträge und unter **Auswertungen** die Kennzahlen.
+
+## Hinweise
+
+- Die Snapshot-Datei ist nur während des Backup-Vorgangs vorhanden.
+- Backups enthalten persönliche Finanzdaten: getrennt aufbewahren und nicht öffentlich teilen.
+- Bei sehr großen Datenbanken (viel mehr als die im Projekt erwarteten Mengen) kann der Snapshot kurz dauern; das Add-on bleibt währenddessen erreichbar.

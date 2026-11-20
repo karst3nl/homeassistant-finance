@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Kategorien · Finanzen{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>Kategorien</h2>
+  {% if categories %}
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Art</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for category in categories %}
+      <tr>
+        <td>{{ category.name }}</td>
+        <td>{{ 'Einnahme' if category.type == 'income' else 'Ausgabe' }}</td>
+        <td class="right">
+          <form method="post" action="ui/categories/{{ category.id }}/delete" class="inline">
+            <button type="submit" class="danger" title="Kategorie löschen">×</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Noch keine Kategorien vorhanden.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Neue Kategorie</h2>
+  <form method="post" action="ui/categories" class="form-grid">
+    <label>
+      Name
+      <input type="text" name="name" maxlength="200" value="{{ form.name or '' }}" required />
+    </label>
+    <label>
+      Art
+      <select name="type">
+        <option value="expense" {% if form.type != 'income' %}selected{% endif %}>Ausgabe</option>
+        <option value="income" {% if form.type == 'income' %}selected{% endif %}>Einnahme</option>
+      </select>
+    </label>
+    <div class="wide actions"><button type="submit">Kategorie anlegen</button></div>
+  </form>
+</section>
+{% endblock %}

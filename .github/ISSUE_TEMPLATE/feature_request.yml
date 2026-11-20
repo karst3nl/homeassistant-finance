@@ -1,0 +1,34 @@
+name: Idee / Verbesserung
+description: Eine Idee für Finance vorschlagen
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem löst die Idee?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Wie sollte es aussehen?
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Passt es zum v1-Scope?
+      description: v1 ist bewusst auf manuelle Erfassung, Budgets und Auswertungen begrenzt.
+      options:
+        - Ja, im aktuellen Scope
+        - Nein, als Idee für später
+        - Weiß ich nicht
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativen, die du schon probiert hast
+    validations:
+      required: false

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Übersicht · Finanzen{% endblock %}
+{% block content %}
+<section class="cards">
+  <article class="card">
+    <h2>Saldo gesamt</h2>
+    <p class="value">{{ total_cents | cents }}</p>
+  </article>
+  <article class="card">
+    <h2>Ausgaben diesen Monat</h2>
+    <p class="value">{{ month_spend_cents | cents }}</p>
+  </article>
+</section>
+
+<section class="card">
+  <h2>Kontostände</h2>
+  {% if accounts %}
+  <table>
+    <thead>
+      <tr><th>Konto</th><th>Typ</th><th class="right">Saldo</th></tr>
+    </thead>
+    <tbody>
+      {% for account in accounts %}
+      <tr>
+        <td>{{ account.name }}</td>
+        <td>{{ account.type }}</td>
+        <td class="right mono">{{ account.balance_cents | cents }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Noch keine Konten vorhanden. <a href="ui/accounts">Konto anlegen</a>.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <div class="section-head">
+    <h2>Budgets diesen Monat</h2>
+    <a href="ui/budgets">Verwalten</a>
+  </div>
+  {% include "_budget_bars.html" %}
+</section>
+
+<section class="card">
+  <h2>Ausgabe erfassen</h2>
+  {% if not accounts %}
+  <p>Für eine Buchung muss zuerst ein <a href="ui/accounts">Konto angelegt</a> werden.</p>
+  {% else %}
+  <form method="post" action="ui/transactions" class="form-grid">
+    <label>
+      Art
+      <select name="direction">
+        <option value="expense" {% if form.direction != 'income' %}selected{% endif %}>Ausgabe</option>
+        <option value="income" {% if form.direction == 'income' %}selected{% endif %}>Einnahme</option>
+      </select>
+    </label>
+    <label>
+      Datum
+      <input type="date" name="booking_date" value="{{ form.booking_date or today }}" required />
+    </label>
+    <label>
+      Konto
+      <select name="account_id" required>
+        {% for account in accounts %}
+        <option value="{{ account.id }}" {% if form.account_id == account.id|string %}selected{% endif %}>
+          {{ account.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Betrag
+      <input type="text" name="amount" inputmode="decimal" placeholder="0,00" value="{{ form.amount or '' }}" required />
+    </label>
+    <label>
+      Gegenstelle
+      <input type="text" name="counterparty" maxlength="200" value="{{ form.counterparty or '' }}" />
+    </label>
+    <label>
+      Kategorie
+      <select name="category_id">
+        <option value="">– keine –</option>
+        {% for category in expense_categories %}
+        <option value="{{ category.id }}" {% if form.category_id == category.id|string %}selected{% endif %}>
+          {{ category.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="wide">
+      Beschreibung
+      <input type="text" name="description" maxlength="500" value="{{ form.description or '' }}" />
+    </label>
+    <div class="wide actions">
+      <button type="submit">Buchung speichern</button>
+    </div>
+  </form>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Letzte Buchungen</h2>
+  {% if recent %}
+  <table>
+    <thead>
+      <tr><th>Datum</th><th>Gegenstelle</th><th>Konto</th><th>Kategorie</th><th class="right">Betrag</th></tr>
+    </thead>
+    <tbody>
+      {% for entry in recent %}
+      <tr>
+        <td class="mono">{{ entry.booking_date }}</td>
+        <td>{{ entry.counterparty or entry.description or '–' }}</td>
+        <td>{{ entry.account_name }}</td>
+        <td>{{ entry.category_name or '–' }}</td>
+        <td class="right mono {{ 'negative' if entry.amount_cents < 0 else 'positive' }}">
+          {{ entry.amount_cents | cents }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p><a href="ui/transactions">Alle Buchungen anzeigen</a></p>
+  {% else %}
+  <p>Noch keine Buchungen vorhanden.</p>
+  {% endif %}
+</section>
+{% endblock %}

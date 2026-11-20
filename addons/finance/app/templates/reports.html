@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Auswertungen · Finanzen{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h2>Auswertungen</h2>
+    <div class="period-nav">
+      <a href="ui/reports?period={{ prev_period }}" title="Vorheriger Monat">‹</a>
+      <strong>{{ period_label }}</strong>
+      {% if period < current_period %}
+      <a href="ui/reports?period={{ next_period }}" title="Nächster Monat">›</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="section-head">
+    <h2>Monatsvergleich</h2>
+    <div class="legend">
+      <span><i class="swatch income"></i>Einnahmen</span>
+      <span><i class="swatch expense"></i>Ausgaben</span>
+    </div>
+  </div>
+  {{ monthly_svg | safe }}
+</section>
+
+<section class="card">
+  <h2>Ausgaben nach Kategorie · {{ period_label }}</h2>
+  {% if categories %}
+  <div class="chart-with-legend">
+    {{ donut_svg | safe }}
+    <table>
+      <thead>
+        <tr><th>Kategorie</th><th class="right">Betrag</th><th class="right">Anteil</th></tr>
+      </thead>
+      <tbody>
+        {% for category in categories %}
+        <tr>
+          <td><i class="swatch" style="background: {{ category.color }}"></i>{{ category.name }}</td>
+          <td class="right mono">{{ category.total_cents | cents }}</td>
+          <td class="right mono">{{ category.share }} %</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p>Für diesen Monat sind keine Ausgaben erfasst.</p>
+  {{ donut_svg | safe }}
+  {% endif %}
+</section>
+
+<section class="card">
+  <div class="section-head">
+    <h2>Budget-Fortschritt · {{ period_label }}</h2>
+    <a href="ui/budgets?period={{ period }}">Budgets verwalten</a>
+  </div>
+  {% include "_budget_bars.html" %}
+</section>
+
+<section class="card">
+  <h2>Saldo-Verlauf</h2>
+  {{ balance_svg | safe }}
+  <p class="muted">Saldo zum {{ period_label }}: <strong>{{ history[-1].total_cents | cents }}</strong></p>
+</section>
+{% endblock %}

@@ -1,0 +1,28 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  pip-audit:
+    name: Bekannte Schwachstellen in Abhängigkeiten
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: pip-audit installieren
+        run: pip install pip-audit
+
+      - name: Dependencies prüfen
+        run: pip-audit -r requirements-dev.txt --progress-spinner off

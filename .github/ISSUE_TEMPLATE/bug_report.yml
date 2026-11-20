@@ -1,0 +1,51 @@
+name: Fehler melden
+description: Ein Problem beim Installieren oder Bedienen des Add-ons beschreiben
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für den Report. Bitte keine Finanzdaten oder Zugangsdaten einfügen.
+  - type: input
+    id: version
+    attributes:
+      label: Add-on-Version
+      placeholder: "0.9.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Plattform
+      options:
+        - HA OS Raspberry Pi 4 (aarch64)
+        - HA OS x86-64 (amd64)
+        - Andere / Entwicklungsumgebung
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: Was passiert?
+      description: Kurz beschreiben, was du erwartet hast und was stattdessen geschieht.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zur Reproduktion
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevante Logs
+      description: Add-on-Log Auszug (bitte Buchungsinhalte entfernen).
+      render: text
+    validations:
+      required: false

@@ -1,0 +1,16 @@
+{% for budget in budgets %}
+<div class="budget">
+  <div class="budget-head">
+    <span>{{ budget.category_name }}</span>
+    <span class="mono">{{ budget.spent_cents | cents }} / {{ budget.limit_cents | cents }}</span>
+  </div>
+  <div class="progress">
+    <div class="progress-fill {{ budget.state }}" style="width: {{ budget.bar_percent }}%"></div>
+  </div>
+  {% if budget.state == 'over' %}
+  <small class="negative">{{ (budget.remaining_cents * -1) | cents }} über dem Limit</small>
+  {% endif %}
+</div>
+{% else %}
+<p>Noch keine Budgets für diesen Monat.</p>
+{% endfor %}

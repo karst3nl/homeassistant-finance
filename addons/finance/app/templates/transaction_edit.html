@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Buchung bearbeiten · Finanzen{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h2>Buchung bearbeiten</h2>
+    <a href="ui/transactions">Zurück zu den Buchungen</a>
+  </div>
+  {% if entry.source == 'recurring' %}
+  <p class="muted">Diese Buchung wurde automatisch aus einer Fixkosten-Regel erzeugt.</p>
+  {% endif %}
+  <form method="post" action="ui/transactions/{{ entry.id }}" class="form-grid">
+    {% set submit_label = 'Buchung speichern' %}
+    {% include "_transaction_form.html" %}
+  </form>
+</section>
+{% endblock %}

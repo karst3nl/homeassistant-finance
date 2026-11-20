@@ -9,9 +9,11 @@ from __future__ import annotations
 import calendar
 import re
 import sqlite3
+from datetime import date
 from pathlib import Path
 from urllib.parse import parse_qs
 
+import recurring
 from charts import bar_chart, donut_chart, line_chart
 from db import transaction
 from money import cents_to_decimal, format_cents, parse_cents
@@ -95,6 +97,30 @@ def _account_options() -> list[dict]:
     return [dict(row) for row in rows]
 
 
+def _amount_input(cents: int) -> str:
+    """Betrag für ein Textfeld – ohne Tausendertrennzeichen, mit Komma."""
+    return f"{cents_to_decimal(abs(cents)):.2f}".replace(".", ",")
+
+
+def _check_form_references(connection, account_id: int, category_id: int | None) -> None:
+    if connection.execute("SELECT 1 FROM accounts WHERE id = ?", (account_id,)).fetchone() is None:
+        raise ValueError("Das gewählte Konto existiert nicht.")
+    if (
+        category_id is not None
+        and connection.execute("SELECT 1 FROM categories WHERE id = ?", (category_id,)).fetchone()
+        is None
+    ):
+        raise ValueError("Die gewählte Kategorie existiert nicht.")
+
+
+def _all_categories() -> list[dict]:
+    with transaction() as connection:
+        rows = connection.execute(
+            "SELECT id, name, type FROM categories ORDER BY name COLLATE NOCASE"
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
 def _period(request: Request) -> str:
     """Gewählten Monat aus der URL lesen, sonst den aktuellen."""
     try:
@@ -127,11 +153,11 @@ def _budget_context(period: str) -> dict:
 
 
 def dashboard(request: Request):
-    return _render(request, "dashboard.html", dashboard_data())
+    return _render(request, "dashboard.html", {**dashboard_data(), "categories": _all_categories()})
 
 
-async def create_transaction(request: Request) -> Response:
-    form = await _form(request)
+def _transaction_values(form: dict[str, str]) -> tuple[dict, list[str]]:
+    """Formularwerte einer Buchung validieren (anlegen und bearbeiten)."""
     errors: list[str] = []
 
     account_id = _positive_id(form.get("account_id", ""))
@@ -139,7 +165,7 @@ async def create_transaction(request: Request) -> Response:
         errors.append("Bitte ein Konto auswählen.")
 
     try:
-        booking_date = parse_date(form.get("booking_date", ""))
+        booking_date = parse_date(form.get("booking_date", ""), "booking_date")
     except HTTPException:
         booking_date = ""
         errors.append("Bitte ein gültiges Datum angeben.")
@@ -160,37 +186,37 @@ async def create_transaction(request: Request) -> Response:
     category_value = form.get("category_id", "")
     category_id = _positive_id(category_value) if category_value else None
 
+    values = {
+        "account_id": account_id,
+        "booking_date": booking_date,
+        "amount_cents": -amount if direction == "expense" else amount,
+        "counterparty": form.get("counterparty", "").strip(),
+        "description": form.get("description", "").strip(),
+        "category_id": category_id,
+    }
+    return values, errors
+
+
+async def create_transaction(request: Request) -> Response:
+    form = await _form(request)
+    values, errors = _transaction_values(form)
+
     if not errors:
-        cents = -amount if direction == "expense" else amount
         try:
             with transaction() as connection:
-                if (
-                    connection.execute(
-                        "SELECT 1 FROM accounts WHERE id = ?", (account_id,)
-                    ).fetchone()
-                    is None
-                ):
-                    raise ValueError("Das gewählte Konto existiert nicht.")
-                if (
-                    category_id is not None
-                    and connection.execute(
-                        "SELECT 1 FROM categories WHERE id = ?", (category_id,)
-                    ).fetchone()
-                    is None
-                ):
-                    raise ValueError("Die gewählte Kategorie existiert nicht.")
+                _check_form_references(connection, values["account_id"], values["category_id"])
                 connection.execute(
                     """INSERT INTO transactions
                        (account_id, booking_date, amount_cents,
                         counterparty, description, category_id)
                        VALUES (?, ?, ?, ?, ?, ?)""",
                     (
-                        account_id,
-                        booking_date,
-                        cents,
-                        form.get("counterparty", "").strip(),
-                        form.get("description", "").strip(),
-                        category_id,
+                        values["account_id"],
+                        values["booking_date"],
+                        values["amount_cents"],
+                        values["counterparty"],
+                        values["description"],
+                        values["category_id"],
                     ),
                 )
         except ValueError as exc:
@@ -200,7 +226,12 @@ async def create_transaction(request: Request) -> Response:
         return _render(
             request,
             "dashboard.html",
-            {**dashboard_data(), "errors": errors, "form": form},
+            {
+                **dashboard_data(),
+                "categories": _all_categories(),
+                "errors": errors,
+                "form": form,
+            },
             status_code=400,
         )
     return _redirect(request)
@@ -228,12 +259,86 @@ def delete_transaction(request: Request) -> Response:
     return _redirect(request, "ui/transactions")
 
 
+def _transaction_edit_context(transaction_id: int, form: dict | None = None) -> dict:
+    with transaction() as connection:
+        row = connection.execute(
+            "SELECT * FROM transactions WHERE id = ?", (transaction_id,)
+        ).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Buchung nicht gefunden")
+    entry = dict(row)
+    if form is None:
+        form = {
+            **entry,
+            "direction": "income" if entry["amount_cents"] > 0 else "expense",
+            "amount": _amount_input(entry["amount_cents"]),
+            "account_id": str(entry["account_id"]),
+            "category_id": str(entry["category_id"]) if entry["category_id"] else "",
+        }
+    return {
+        "entry": entry,
+        "accounts": _account_options(),
+        "categories": _all_categories(),
+        "today": date.today().isoformat(),
+        "form": form,
+    }
+
+
+def edit_transaction_page(request: Request):
+    transaction_id = path_id(request.path_params["transaction_id"])
+    return _render(request, "transaction_edit.html", _transaction_edit_context(transaction_id))
+
+
+async def update_transaction(request: Request) -> Response:
+    transaction_id = path_id(request.path_params["transaction_id"])
+    form = await _form(request)
+    values, errors = _transaction_values(form)
+    if not errors:
+        try:
+            with transaction() as connection:
+                if (
+                    connection.execute(
+                        "SELECT 1 FROM transactions WHERE id = ?", (transaction_id,)
+                    ).fetchone()
+                    is None
+                ):
+                    raise HTTPException(status_code=404, detail="Buchung nicht gefunden")
+                _check_form_references(connection, values["account_id"], values["category_id"])
+                connection.execute(
+                    """UPDATE transactions SET
+                           account_id = ?, booking_date = ?, amount_cents = ?,
+                           counterparty = ?, description = ?, category_id = ?,
+                           updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+                       WHERE id = ?""",
+                    (
+                        values["account_id"],
+                        values["booking_date"],
+                        values["amount_cents"],
+                        values["counterparty"],
+                        values["description"],
+                        values["category_id"],
+                        transaction_id,
+                    ),
+                )
+        except ValueError as exc:
+            errors.append(str(exc))
+
+    if errors:
+        return _render(
+            request,
+            "transaction_edit.html",
+            {**_transaction_edit_context(transaction_id, form), "errors": errors},
+            status_code=400,
+        )
+    return _redirect(request, "ui/transactions")
+
+
 def accounts_page(request: Request):
     return _render(request, "accounts.html", _accounts_with_balances())
 
 
-async def create_account(request: Request) -> Response:
-    form = await _form(request)
+def _account_values(form: dict[str, str]) -> tuple[dict, list[str]]:
+    """Formularwerte eines Kontos validieren (anlegen und bearbeiten)."""
     errors: list[str] = []
     name = form.get("name", "").strip()
     if not name:
@@ -241,12 +346,27 @@ async def create_account(request: Request) -> Response:
     account_type = form.get("type", "checking")
     if account_type not in ACCOUNT_TYPES:
         errors.append("Bitte einen gültigen Kontotyp wählen.")
+        account_type = "checking"
     currency = form.get("currency", "EUR").strip().upper() or "EUR"
     try:
         initial_cents = parse_cents(form.get("initial_balance", "0"))
     except ValueError:
         initial_cents = 0
         errors.append("Bitte einen gültigen Anfangssaldo angeben.")
+
+    values = {
+        "name": name,
+        "type": account_type,
+        "currency": currency,
+        "initial_balance_cents": initial_cents,
+        "active": 1 if form.get("active", "1") == "1" else 0,
+    }
+    return values, errors
+
+
+async def create_account(request: Request) -> Response:
+    form = await _form(request)
+    values, errors = _account_values(form)
 
     if errors:
         return _render(
@@ -258,9 +378,75 @@ async def create_account(request: Request) -> Response:
 
     with transaction() as connection:
         connection.execute(
-            """INSERT INTO accounts (name, type, currency, initial_balance_cents)
-               VALUES (?, ?, ?, ?)""",
-            (name, account_type, currency, initial_cents),
+            """INSERT INTO accounts (name, type, currency, initial_balance_cents, active)
+               VALUES (?, ?, ?, ?, ?)""",
+            (
+                values["name"],
+                values["type"],
+                values["currency"],
+                values["initial_balance_cents"],
+                values["active"],
+            ),
+        )
+    return _redirect(request, "ui/accounts")
+
+
+def edit_account_page(request: Request):
+    account_id = path_id(request.path_params["account_id"])
+    with transaction() as connection:
+        row = connection.execute("SELECT * FROM accounts WHERE id = ?", (account_id,)).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Konto nicht gefunden")
+    account = dict(row)
+    form = {
+        **account,
+        "initial_balance": _amount_input(account["initial_balance_cents"]),
+        "active": "1" if account["active"] else "0",
+    }
+    return _render(
+        request,
+        "account_edit.html",
+        {**_accounts_with_balances(), "account": account, "form": form},
+    )
+
+
+async def update_account(request: Request) -> Response:
+    account_id = path_id(request.path_params["account_id"])
+    form = await _form(request)
+    values, errors = _account_values(form)
+
+    with transaction() as connection:
+        if (
+            connection.execute("SELECT 1 FROM accounts WHERE id = ?", (account_id,)).fetchone()
+            is None
+        ):
+            raise HTTPException(status_code=404, detail="Konto nicht gefunden")
+        if not errors:
+            connection.execute(
+                """UPDATE accounts SET name = ?, type = ?, currency = ?,
+                       initial_balance_cents = ?, active = ?
+                   WHERE id = ?""",
+                (
+                    values["name"],
+                    values["type"],
+                    values["currency"],
+                    values["initial_balance_cents"],
+                    values["active"],
+                    account_id,
+                ),
+            )
+
+    if errors:
+        return _render(
+            request,
+            "account_edit.html",
+            {
+                **_accounts_with_balances(),
+                "account": {"id": account_id, "name": values["name"]},
+                "errors": errors,
+                "form": form,
+            },
+            status_code=400,
         )
     return _redirect(request, "ui/accounts")
 
@@ -277,7 +463,8 @@ def delete_account(request: Request) -> Response:
             {
                 **_accounts_with_balances(),
                 "errors": [
-                    "Das Konto kann nicht gelöscht werden, solange Buchungen darauf existieren."
+                    "Das Konto kann nicht gelöscht werden, solange Buchungen darauf existieren "
+                    "(auch geplante Fixkosten zählen)."
                 ],
             },
             status_code=409,
@@ -342,11 +529,7 @@ def delete_category(request: Request) -> Response:
 
 
 def _categories() -> dict:
-    with transaction() as connection:
-        rows = connection.execute(
-            "SELECT id, name, type FROM categories ORDER BY name COLLATE NOCASE"
-        ).fetchall()
-    return {"categories": [dict(row) for row in rows]}
+    return {"categories": _all_categories()}
 
 
 def reports_page(request: Request):
@@ -464,14 +647,157 @@ def delete_budget(request: Request) -> Response:
     return _redirect(request, f"ui/budgets?period={period}")
 
 
+def _recurring_context() -> dict:
+    return {
+        "rules": recurring.list_rules(),
+        "accounts": _account_options(),
+        "categories": _all_categories(),
+        "summary": recurring.planned_summary(),
+        "today": date.today().isoformat(),
+    }
+
+
+def recurring_page(request: Request):
+    return _render(request, "recurring.html", _recurring_context())
+
+
+def _recurring_values(form: dict[str, str]) -> tuple[dict, list[str]]:
+    """Formularwerte einer Fixkosten-Regel validieren."""
+    errors: list[str] = []
+
+    name = form.get("name", "").strip()
+    if not name:
+        errors.append("Bitte einen Namen angeben.")
+
+    direction = form.get("direction", "expense")
+    if direction not in recurring.DIRECTIONS:
+        errors.append("Bitte Ausgabe oder Einnahme wählen.")
+        direction = "expense"
+
+    interval = form.get("interval", "monthly")
+    if interval not in recurring.INTERVALS:
+        errors.append("Bitte monatlich oder jährlich wählen.")
+        interval = "monthly"
+
+    try:
+        amount = parse_cents(form.get("amount", ""))
+    except ValueError:
+        amount = 0
+        errors.append("Bitte einen gültigen Betrag angeben.")
+    if amount <= 0:
+        errors.append("Der Betrag muss größer als 0 sein.")
+
+    account_id = _positive_id(form.get("account_id", ""))
+    if account_id is None:
+        errors.append("Bitte ein Konto auswählen.")
+
+    category_value = form.get("category_id", "")
+    category_id = _positive_id(category_value) if category_value else None
+
+    try:
+        start_date = parse_date(form.get("start_date", ""), "start_date")
+    except HTTPException:
+        start_date = ""
+        errors.append("Bitte ein gültiges Startdatum angeben.")
+
+    values = {
+        "name": name,
+        "direction": direction,
+        "interval": interval,
+        "amount_cents": amount,
+        "account_id": account_id,
+        "category_id": category_id,
+        "start_date": start_date,
+        "counterparty": form.get("counterparty", "").strip(),
+        "description": form.get("description", "").strip(),
+        "active": 1 if form.get("active", "1") == "1" else 0,
+    }
+    return values, errors
+
+
+async def create_recurring(request: Request) -> Response:
+    form = await _form(request)
+    values, errors = _recurring_values(form)
+    if not errors:
+        try:
+            recurring.create_rule(values)
+            recurring.generate_due()
+        except recurring.RecurringError as exc:
+            errors.append(str(exc))
+
+    if errors:
+        return _render(
+            request,
+            "recurring.html",
+            {**_recurring_context(), "errors": errors, "form": form},
+            status_code=400,
+        )
+    return _redirect(request, "ui/recurring")
+
+
+def _recurring_edit_context(rule_id: int, form: dict | None = None) -> dict:
+    rule = recurring.get_rule(rule_id)
+    if rule is None:
+        raise HTTPException(status_code=404, detail="Regel nicht gefunden")
+    if form is None:
+        form = {
+            **rule,
+            "amount": _amount_input(rule["amount_cents"]),
+            "account_id": str(rule["account_id"]),
+            "category_id": str(rule["category_id"]) if rule["category_id"] else "",
+            "active": "1" if rule["active"] else "0",
+        }
+    return {**_recurring_context(), "rule": rule, "form": form}
+
+
+def edit_recurring_page(request: Request):
+    rule_id = path_id(request.path_params["rule_id"])
+    return _render(request, "recurring_edit.html", _recurring_edit_context(rule_id))
+
+
+async def update_recurring(request: Request) -> Response:
+    rule_id = path_id(request.path_params["rule_id"])
+    form = await _form(request)
+    values, errors = _recurring_values(form)
+    if recurring.get_rule(rule_id) is None:
+        raise HTTPException(status_code=404, detail="Regel nicht gefunden")
+    if not errors:
+        try:
+            recurring.update_rule(rule_id, values)
+            recurring.generate_due()
+        except recurring.RecurringError as exc:
+            errors.append(str(exc))
+
+    if errors:
+        return _render(
+            request,
+            "recurring_edit.html",
+            {**_recurring_edit_context(rule_id, form), "errors": errors},
+            status_code=400,
+        )
+    return _redirect(request, "ui/recurring")
+
+
+def delete_recurring(request: Request) -> Response:
+    try:
+        recurring.delete_rule(path_id(request.path_params["rule_id"]))
+    except recurring.RecurringError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return _redirect(request, "ui/recurring")
+
+
 routes = [
     Route("/", dashboard, methods=["GET"]),
     Route("/ui/transactions", transactions_page, methods=["GET"]),
     Route("/ui/transactions", create_transaction, methods=["POST"]),
     Route("/ui/transactions/{transaction_id}/delete", delete_transaction, methods=["POST"]),
+    Route("/ui/transactions/{transaction_id}/edit", edit_transaction_page, methods=["GET"]),
+    Route("/ui/transactions/{transaction_id}", update_transaction, methods=["POST"]),
     Route("/ui/accounts", accounts_page, methods=["GET"]),
     Route("/ui/accounts", create_account, methods=["POST"]),
     Route("/ui/accounts/{account_id}/delete", delete_account, methods=["POST"]),
+    Route("/ui/accounts/{account_id}/edit", edit_account_page, methods=["GET"]),
+    Route("/ui/accounts/{account_id}", update_account, methods=["POST"]),
     Route("/ui/categories", categories_page, methods=["GET"]),
     Route("/ui/categories", create_category, methods=["POST"]),
     Route("/ui/categories/{category_id}/delete", delete_category, methods=["POST"]),
@@ -480,4 +806,9 @@ routes = [
     Route("/ui/budgets", create_budget, methods=["POST"]),
     Route("/ui/budgets/{budget_id}", update_budget, methods=["POST"]),
     Route("/ui/budgets/{budget_id}/delete", delete_budget, methods=["POST"]),
+    Route("/ui/recurring", recurring_page, methods=["GET"]),
+    Route("/ui/recurring", create_recurring, methods=["POST"]),
+    Route("/ui/recurring/{rule_id}/edit", edit_recurring_page, methods=["GET"]),
+    Route("/ui/recurring/{rule_id}", update_recurring, methods=["POST"]),
+    Route("/ui/recurring/{rule_id}/delete", delete_recurring, methods=["POST"]),
 ]

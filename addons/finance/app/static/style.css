@@ -87,6 +87,9 @@ button {
 button.danger { padding: 2px 10px; background: transparent; color: var(--muted); font-size: 18px; }
 button.danger:hover { color: #e06262; }
 .inline { margin: 0; }
+.table-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+label.checkbox { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 14px; }
+label.checkbox input { width: auto; }
 a { color: var(--accent); }
 .errors {
   border: 1px solid #e06262;

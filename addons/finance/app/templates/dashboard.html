@@ -48,53 +48,7 @@
   <p>Für eine Buchung muss zuerst ein <a href="ui/accounts">Konto angelegt</a> werden.</p>
   {% else %}
   <form method="post" action="ui/transactions" class="form-grid">
-    <label>
-      Art
-      <select name="direction">
-        <option value="expense" {% if form.direction != 'income' %}selected{% endif %}>Ausgabe</option>
-        <option value="income" {% if form.direction == 'income' %}selected{% endif %}>Einnahme</option>
-      </select>
-    </label>
-    <label>
-      Datum
-      <input type="date" name="booking_date" value="{{ form.booking_date or today }}" required />
-    </label>
-    <label>
-      Konto
-      <select name="account_id" required>
-        {% for account in accounts %}
-        <option value="{{ account.id }}" {% if form.account_id == account.id|string %}selected{% endif %}>
-          {{ account.name }}
-        </option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>
-      Betrag
-      <input type="text" name="amount" inputmode="decimal" placeholder="0,00" value="{{ form.amount or '' }}" required />
-    </label>
-    <label>
-      Gegenstelle
-      <input type="text" name="counterparty" maxlength="200" value="{{ form.counterparty or '' }}" />
-    </label>
-    <label>
-      Kategorie
-      <select name="category_id">
-        <option value="">– keine –</option>
-        {% for category in expense_categories %}
-        <option value="{{ category.id }}" {% if form.category_id == category.id|string %}selected{% endif %}>
-          {{ category.name }}
-        </option>
-        {% endfor %}
-      </select>
-    </label>
-    <label class="wide">
-      Beschreibung
-      <input type="text" name="description" maxlength="500" value="{{ form.description or '' }}" />
-    </label>
-    <div class="wide actions">
-      <button type="submit">Buchung speichern</button>
-    </div>
+    {% include "_transaction_form.html" %}
   </form>
   {% endif %}
 </section>

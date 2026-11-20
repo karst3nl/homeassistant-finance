@@ -97,7 +97,8 @@ def filtered_transactions(filters: dict[str, str]) -> list[dict]:
         rows = connection.execute(
             f"""
             SELECT t.id, t.booking_date, t.amount_cents, t.counterparty,
-                   t.description, a.name AS account_name, c.name AS category_name
+                   t.description, t.source, a.name AS account_name,
+                   c.name AS category_name
             FROM transactions t
             JOIN accounts a ON a.id = t.account_id
             LEFT JOIN categories c ON c.id = t.category_id

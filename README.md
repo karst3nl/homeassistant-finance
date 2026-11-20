@@ -4,20 +4,19 @@
 
 Ein schlankes, vollständig lokales Home-Assistant-Add-on für persönliche Finanzen. Kein Cloud-Konto, keine Bankverbindung, keine zusätzlichen Add-ons – nur ein Webserver-Prozess, eine SQLite-Datei und eine Oberfläche in Home Assistant.
 
-> **Status:** Phase 0–3 umgesetzt, Phase 4 (Härtung, Doku, Release-CI) lokal abgeschlossen. Version **0.9.0** ist der Release-Kandidat für v1.0. Die Repository-URL ist auf `karst3nl/homeassistant-finance` festgelegt; offen sind erster Push, GHCR-Veröffentlichung und der manuelle Pi-4-Smoketest. Plan: [ROADMAP.md](ROADMAP.md).
+> **Status:** Version **0.9.0** ist veröffentlicht und auf dem Raspberry Pi 4 getestet. Die Weiterentwicklung **0.10.0** ergänzt Bearbeitung und Fixkosten. Plan: [ROADMAP.md](ROADMAP.md).
 
 ## Umfang in v1
 
-- Konten und Kategorien verwalten
+- Konten und Kategorien verwalten und bearbeiten
 - Buchungen manuell erfassen, bearbeiten und löschen
+- Monatliche und jährliche Fixkosten mit automatischer Buchung ([Anleitung](docs/fixkosten.md))
 - Budgets pro Kategorie und Monat
 - Übersicht mit Saldo, Monatsausgaben und SVG-Charts
 - 100 % lokal, Ingress-UI ohne eigene Ports und ohne eigenes Login
 - Keine HA-Entitäten, kein MQTT, kein Zugriff auf die HA-API
 
 ## Installation
-
-Nach der Veröffentlichung:
 
 1. In Home Assistant: **Einstellungen → Apps → App installieren → Repositories**
 2. URL eintragen: `https://github.com/karst3nl/homeassistant-finance`
@@ -34,6 +33,7 @@ Ausführlich: [docs/installation.md](docs/installation.md).
 - [Backup und Restore](docs/backup.md)
 - [Datenschutz](docs/datenschutz.md)
 - [Häufige Fragen](docs/faq.md)
+- [Fixkosten und wiederkehrende Buchungen](docs/fixkosten.md)
 - [Entwicklung](docs/entwicklung.md)
 - [Performance und Pi-4-Messung](docs/performance.md)
 - [Sicherheitsrichtlinie](SECURITY.md)
@@ -59,7 +59,7 @@ Die Datenbank liegt in Home Assistant unter `/data/finance.db`. Für lokale Entw
 
 Die Oberfläche ist komplett servergerendert (Jinja2) und kommt ohne JavaScript und CDN aus. Interne Endpunkte (nur innerhalb des Add-ons):
 
-- `/api/accounts`, `/api/categories`, `/api/transactions`, `/api/budgets` – `GET`/`POST` sowie `GET`/`PUT`/`DELETE` für einzelne Datensätze
+- `/api/accounts`, `/api/categories`, `/api/transactions`, `/api/budgets`, `/api/recurring` – `GET`/`POST` sowie `GET`/`PUT`/`DELETE` für einzelne Datensätze
 - Lesend: `/api/stats/monthly`, `/api/stats/categories`, `/api/stats/budgets`, `/api/stats/balance`
 - `/healthz` für den Supervisor-Watchdog
 
@@ -72,17 +72,14 @@ FINANCE_DB_PATH=/tmp/finance.db FINANCE_RESTRICT_INGRESS=0 \
 
 Danach `http://localhost:8099/` und `http://localhost:8099/healthz` aufrufen.
 
-## Freigabe für v1.0
+## Releases
 
-Die finale Repository-URL ist `https://github.com/karst3nl/homeassistant-finance` und steht in `repository.yaml`, `config.yaml`, Badge und Add-on-README. Sie darf nach dem ersten Push nicht mehr geändert werden – aus ihr leitet der Supervisor die Add-on-ID ab. Die verbleibenden Treffer von `YOUR_GITHUB_USER` in `scripts/validate_config.py` und `.github/workflows/release.yaml` sind bewusste Schutzprüfungen für Forks.
+Die Repository-URL `https://github.com/karst3nl/homeassistant-finance` steht in `repository.yaml`, `config.yaml`, Badge und Add-on-README und bleibt stabil – aus ihr leitet der Supervisor die Add-on-ID ab. Die verbleibenden Treffer von `YOUR_GITHUB_USER` in `scripts/validate_config.py` und `.github/workflows/release.yaml` sind bewusste Schutzprüfungen für Forks.
 
-Offen für die Veröffentlichung:
+- `0.9.0`: erstes veröffentlichtes Image, vom Pi-4-Test bestätigt.
+- `0.10.0`: Bearbeitung und Fixkosten.
 
-1. Repository `karst3nl/homeassistant-finance` anlegen und `main` pushen.
-2. Pi-4-Smoketest laut [docs/performance.md](docs/performance.md).
-3. Version in `config.yaml` und `pyproject.toml` auf `1.0.0` setzen und `CHANGELOG.md` ergänzen.
-4. GitHub Release `v1.0.0` publizieren. `.github/workflows/release.yaml` baut und signiert die Images für `aarch64`/`amd64`, pusht `1.0.0` und `latest` nach GHCR und veröffentlicht das Manifest.
-5. GHCR-Paket nach dem ersten Push explizit public setzen.
+Ein Release publiziert `.github/workflows/release.yaml`: Es baut und signiert die Images für `aarch64`/`amd64`, pusht die Version und `latest` nach GHCR und veröffentlicht das Multi-Arch-Manifest. Das GHCR-Paket ist öffentlich. Das Image wird ausschließlich über das Custom Repository installiert; ein lokaler Build ist nicht nötig.
 
 ## Lizenz
 

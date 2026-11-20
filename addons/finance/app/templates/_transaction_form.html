@@ -1,0 +1,60 @@
+{% set selected_direction = form.direction or 'expense' %}
+{% set selected_account = form.account_id | string if form.account_id else '' %}
+{% set selected_category = form.category_id | string if form.category_id else '' %}
+<label>
+  Art
+  <select name="direction">
+    <option value="expense" {% if selected_direction == 'expense' %}selected{% endif %}>Ausgabe</option>
+    <option value="income" {% if selected_direction == 'income' %}selected{% endif %}>Einnahme</option>
+  </select>
+</label>
+<label>
+  Datum
+  <input type="date" name="booking_date" value="{{ form.booking_date or today }}" required />
+</label>
+<label>
+  Konto
+  <select name="account_id" required>
+    {% for account in accounts %}
+    <option value="{{ account.id }}" {% if selected_account == account.id | string %}selected{% endif %}>
+      {{ account.name }}
+    </option>
+    {% endfor %}
+  </select>
+</label>
+<label>
+  Betrag
+  <input type="text" name="amount" inputmode="decimal" placeholder="0,00"
+         value="{{ form.amount or '' }}" required />
+</label>
+<label>
+  Gegenstelle
+  <input type="text" name="counterparty" maxlength="200" value="{{ form.counterparty or '' }}" />
+</label>
+<label>
+  Kategorie
+  <select name="category_id">
+    <option value="">– keine –</option>
+    <optgroup label="Ausgaben">
+      {% for category in categories if category.type == 'expense' %}
+      <option value="{{ category.id }}" {% if selected_category == category.id | string %}selected{% endif %}>
+        {{ category.name }}
+      </option>
+      {% endfor %}
+    </optgroup>
+    <optgroup label="Einnahmen">
+      {% for category in categories if category.type == 'income' %}
+      <option value="{{ category.id }}" {% if selected_category == category.id | string %}selected{% endif %}>
+        {{ category.name }}
+      </option>
+      {% endfor %}
+    </optgroup>
+  </select>
+</label>
+<label class="wide">
+  Beschreibung
+  <input type="text" name="description" maxlength="500" value="{{ form.description or '' }}" />
+</label>
+<div class="wide actions">
+  <button type="submit">{{ submit_label | default('Buchung speichern') }}</button>
+</div>

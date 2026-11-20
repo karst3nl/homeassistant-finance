@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Fixkosten · Finanzen{% endblock %}
+{% block content %}
+<section class="cards">
+  <article class="card">
+    <h2>Geplante Ausgaben / Monat</h2>
+    <p class="value negative">{{ summary.expense_cents | cents }}</p>
+  </article>
+  <article class="card">
+    <h2>Geplante Einnahmen / Monat</h2>
+    <p class="value positive">{{ summary.income_cents | cents }}</p>
+  </article>
+  <article class="card">
+    <h2>Regeln</h2>
+    <p class="value">{{ summary.rule_count }}</p>
+  </article>
+</section>
+
+<section class="card">
+  <h2>Fixkosten und wiederkehrende Einnahmen</h2>
+  {% if rules %}
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th><th class="right">Betrag</th><th>Intervall</th>
+        <th>Nächste Fälligkeit</th><th>Konto</th><th>Kategorie</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rule in rules %}
+      <tr>
+        <td>
+          {{ rule.name }}
+          {% if not rule.active %}<small>pausiert</small>{% endif %}
+          {% if rule.counterparty %}<small>{{ rule.counterparty }}</small>{% endif %}
+        </td>
+        <td class="right mono {{ 'negative' if rule.direction == 'expense' else 'positive' }}">
+          {{ rule.amount_cents | cents }}
+        </td>
+        <td>{{ 'Monatlich' if rule.interval == 'monthly' else 'Jährlich' }}</td>
+        <td class="mono">{{ rule.next_due }}</td>
+        <td>{{ rule.account_name }}</td>
+        <td>{{ rule.category_name or '–' }}</td>
+        <td class="right">
+          <div class="table-actions">
+            <a href="ui/recurring/{{ rule.id }}/edit" title="Regel bearbeiten">Bearbeiten</a>
+            <form method="post" action="ui/recurring/{{ rule.id }}/delete" class="inline">
+              <button type="submit" class="danger" title="Regel löschen">×</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Noch keine Regeln vorhanden.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Neue Regel</h2>
+  {% if not accounts %}
+  <p>Für eine Regel muss zuerst ein <a href="ui/accounts">Konto angelegt</a> werden.</p>
+  {% else %}
+  <form method="post" action="ui/recurring" class="form-grid">
+    {% set submit_label = 'Regel anlegen' %}
+    {% include "_recurring_form.html" %}
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Konto bearbeiten · Finanzen{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h2>Konto bearbeiten: {{ account.name }}</h2>
+    <a href="ui/accounts">Zurück zur Übersicht</a>
+  </div>
+  <form method="post" action="ui/accounts/{{ account.id }}" class="form-grid">
+    {% set submit_label = 'Konto speichern' %}
+    {% include "_account_form.html" %}
+  </form>
+</section>
+{% endblock %}

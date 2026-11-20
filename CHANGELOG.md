@@ -2,6 +2,22 @@
 
 Alle nennenswerten Änderungen werden hier dokumentiert. Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionierung an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.10.0] - 2026-11-20
+
+### Hinzugefügt
+
+- Konten und Buchungen lassen sich über die Oberfläche bearbeiten (Inklusive Aktiverkennung, Kategorien und Vorzeichen)
+- Eigene Seite **Fixkosten** für monatliche und jährliche Regeln mit Name, Betrag, Konto, Kategorie und Fälligkeitsdatum
+- Automatische Erzeugung fälliger Buchungen beim Start und beim Zugriff, inklusive Nachbuchung und Schutz vor Duplikaten
+- Anzeige der geplanten Einnahmen/Ausgaben pro Monat (Jahresbeträge mit `/12`)
+- Pausieren von Regeln, Bearbeiten mit Neuberechnung der Terminfolge und Löschen ohne Verlust bereits erzeugter Buchungen
+- Migration 002 für bestehende Datenbanken, 13 neue Tests für Fixkosten und Bearbeitung
+
+### Geändert
+
+- Buchungsformular teilt sich zwischen Dashboard und Bearbeitungsseite und bietet Einnahme- und Ausgabekategorien
+- `docs/fixkosten.md` als zusätzliche Anleitung; Hinweise in README, FAQ und Add-on-README
+
 ## [0.9.0] - 2026-11-20
 
 Release-Kandidat für v1.0. Noch nicht veröffentlicht: finale Repository-URL, GHCR-Image und Pi-4-Messung stehen aus.

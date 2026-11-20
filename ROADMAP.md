@@ -1,7 +1,7 @@
 # Roadmap: Home-Assistant-Finance
 
 **Stand:** 2026-11-20  
-**Status:** Phase 0–3 abgeschlossen, Phase 4 in Umsetzung (Release-Kandidat 0.9.0)  
+**Status:** Phase 0–4 abgeschlossen (0.9.0 veröffentlicht und auf dem Pi 4 getestet); Phase 5 begonnen mit Bearbeitung und Fixkosten (0.10.0)  
 **Repo:** GitHub, Custom Repository für Home Assistant
 
 ---
@@ -14,6 +14,7 @@
 | Lizenz | **GPL-3.0** | `LICENSE`-Datei im Repo-Root, Binärdistribution muss Quellangebot oder Link enthalten |
 | Rückgabe an HA | **Keine – reine UI** | Kein `homeassistant_api`, keine Sensoren, kein MQTT, kein `services:` |
 | Dokumentation | Diese Datei | Roadmap liegt im Repo-Root und wird mit jedem Release aktualisiert |
+| Wiederkehrende Buchungen | **Eigene Fixkosten-Seite + automatische Buchungen** (ab 0.10.0) | Regeln werden manuell gepflegt, das Add-on erzeugt fällige Buchungen lokal; keine Bankabfrage |
 
 > **Begriffsklärung:** „Reine UI" bedeutet: Es entstehen keine HA-Entitäten und keine Automatisierungsdaten. Die Oberfläche kommuniziert intern weiterhin über HTTP-Endpunkte mit dem Backend im selben Container – das ist Technik innerhalb des Add-ons, keine HA-Integration.
 
@@ -33,7 +34,8 @@ Ein vollständig lokales, quelloffenes Add-on zur Verwaltung persönlicher Finan
 | UI | Ingress im HA-Sidebar, keine eigenen Ports, kein eigenes Login |
 | Installation | Custom Repository + fertige Multi-Arch-Images aus GHCR |
 | v1-Scope | Konten, Kategorien, Transaktionen (manuell), Budgets, Auswertungen |
-| Bewusst später | CSV-Import, FinTS/HBCI, Belege, Sparziele, wiederkehrende Buchungen, Sensoren, Multi-User |
+| Bewusst später | CSV-Import, FinTS/HBCI, Belege, Sparziele, Sensoren, Multi-User |
+| Nach v1 (0.10.0) | Bearbeitung von Konten/Buchungen, Fixkosten mit automatischer Buchung |
 
 **Ressourcenziele (auf dem Pi 4 messbar):** Image < 80 MB · RAM < 80 MB · Start < 5 s · CPU im Leerlauf ~0 %.
 
@@ -86,11 +88,12 @@ addons/
       money.py, validation.py    # Cent-Arithmetik, Eingabeprüfung
       stats.py, reports.py       # Dashboard-Daten, Auswertungen
       charts.py                  # serverseitige SVG-Charts
-      migrations/001_initial.sql
-      api/                       # accounts, categories, transactions, budgets, stats
+      recurring.py               # Fixkosten-Regeln, Termine, Buchungserzeugung
+      migrations/001_initial.sql, 002_recurring.sql
+      api/                       # accounts, categories, transactions, budgets, recurring, stats
       templates/, static/        # Jinja2-Seiten und CSS ohne JS/CDN
 docs/
-  installation.md, backup.md, datenschutz.md, faq.md, entwicklung.md, performance.md
+  installation.md, backup.md, datenschutz.md, faq.md, fixkosten.md, entwicklung.md, performance.md
 scripts/
   validate_config.py, bench.py   # Konfigurationscheck und Performance-Messung
 tests/
@@ -108,8 +111,9 @@ tests/
 |---|---|
 | `accounts` | `id`, `name`, `type`, `currency`, `initial_balance_cents`, `active` |
 | `categories` | `id`, `name`, `parent_id`, `type` (income/expense), `color`, `icon` |
-| `transactions` | `id`, `account_id`, `booking_date`, `amount_cents`, `counterparty`, `description`, `category_id`, `source` (v1 immer `manual`), `created_at` |
+| `transactions` | `id`, `account_id`, `booking_date`, `amount_cents`, `counterparty`, `description`, `category_id`, `source` (`manual`/`recurring`), `recurring_rule_id`, `recurring_period`, `created_at` |
 | `budgets` | `id`, `category_id`, `period` (YYYY-MM), `limit_cents` |
+| `recurring_rules` | `id`, `name`, `amount_cents`, `direction`, `interval` (monatlich/jährlich), `account_id`, `category_id`, `start_date`, `next_due`, `active` |
 | `settings` | `key`, `value` |
 
 - Alle Geldbeträge ganzzahlig in Cent → keine Rundungsfehler.
@@ -117,6 +121,7 @@ tests/
 - Fremdschlüssel aktivieren (`PRAGMA foreign_keys = ON`), WAL-Modus (`PRAGMA journal_mode = WAL`).
 - Migrationen als nummerierte SQL-Dateien, Version in `settings` oder `PRAGMA user_version`.
 - `source` und `created_at` von Anfang an mitdenken, damit ein späterer CSV-Import ohne Schema-Bruch ergänzt werden kann.
+- Migration 002 ergänzt Fixkosten-Regeln und die Herkunft automatischer Buchungen. Ein eindeutiger Index auf (`recurring_rule_id`, `recurring_period`) verhindert Doppelbuchungen.
 
 ---
 
@@ -124,7 +129,7 @@ tests/
 
 Die Reihenfolge ist absichtlich: erst Datenkern, dann UI. Eine hübsche Oberfläche über einer unklaren Datenbank ist der häufigste Grund für spätere Rewrites.
 
-**Fortschritt:** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ (UI bewusst ohne JavaScript/HTMX umgesetzt) · Phase 3 ✅ · Phase 4 🔄 (Härtung und Docs fertig, Veröffentlichung offen).
+**Fortschritt:** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ (UI bewusst ohne JavaScript/HTMX umgesetzt) · Phase 3 ✅ · Phase 4 ✅ (0.9.0 veröffentlicht, Pi-4-Test bestanden) · Phase 5 🔄 (Bearbeitung und Fixkosten in 0.10.0).
 
 | Phase | Inhalt | Meilenstein / Definition of Done | ca. Aufwand* |
 |---|---|---|---|
@@ -132,8 +137,9 @@ Die Reihenfolge ist absichtlich: erst Datenkern, dann UI. Eine hübsche Oberflä
 | **1 – Datenkern & API** | SQLite-Schema, Migrationen, CRUD-Endpunkte für Konten/Kategorien/Transaktionen/Budgets, Cent-Arithmetik, Tests | Alle Kernoperationen per API getestet, DB überlebt Neustart | 3–5 d |
 | **2 – UI** | Dashboard, Buchungsliste mit Filter/Suche, Formular für manuelle Erfassung, Kategorien- und Budget-Pflege, Einstellungen, HA-Theme/Dark Mode | Komplette Bedienung rein über die Oberfläche möglich, kein curl nötig | 4–6 d |
 | **3 – Auswertungen** | Monatsvergleich, Kategorie-Charts als SVG, Budget-Fortschritt, Saldo-Verlauf | Kennzahlen stimmen mit den Rohdaten überein (Gegenprobe per Test) | 2–3 d |
-| **4 – Härtung & v1.0** | Security-Review ✅, Limits/Header/Snapshot ✅, de/en-Übersetzungen ✅, Docs ✅, Release-CI ✅; Performance-Messung auf echtem Pi 4 und Veröffentlichung offen | v1.0.0 getaggt, Image public, Anleitung „in 3 Klicks installiert" | 2–4 d |
-| **5 – Optional (später)** | CSV-Import mit Mapping/Dedup, FinTS/HBCI, Belege, Sparziele, wiederkehrende Buchungen, HA-Sensoren, Multi-User | Nur nach Feedback der ersten Nutzer | offen |
+| **4 – Härtung & Veröffentlichung** | Security-Review ✅, Limits/Header/Snapshot ✅, de/en-Übersetzungen ✅, Docs ✅, Release-CI ✅, GHCR public ✅, Pi-4-Smoketest ✅ | 0.9.0 installierbar via Custom Repository | 2–4 d |
+| **5 – Bearbeitung & Fixkosten** | Konten/Buchungen bearbeiten ✅, Fixkosten-Seite mit automatischer Buchung ✅, Migration 002 ✅, Doku ✅ | 0.10.0 veröffentlicht, Fixkosten auf dem Pi 4 geprüft | 1–2 d |
+| **6 – Optional (später)** | CSV-Import mit Mapping/Dedup, FinTS/HBCI, Belege, Sparziele, HA-Sensoren, Multi-User | Nur nach Feedback der ersten Nutzer | offen |
 
 \* Grobe Schätzungen für eine Person, keine Zusage.
 
@@ -195,26 +201,26 @@ Die Reihenfolge ist absichtlich: erst Datenkern, dann UI. Eine hübsche Oberflä
 - **Integration:** Alle CRUD-Endpunkte via Starlette-TestClient gegen temporäre SQLite-DB.
 - **UI:** Smoke-Tests, dass Seiten rendern, Formulare wirken und der Ingress-Pfad in Links/Redirects ankommt.
 - **Härtung:** Overflow-Schutz, Request-Limits, Security-Headers, Ingress-Pfad-Validierung, Backup-Snapshot.
-- **Hardware:** Messprotokoll auf dem echten Raspberry Pi 4 (Imagegröße, RAM, Startzeit, Ingress-Response), siehe [docs/performance.md](docs/performance.md). Noch offen.
+- **Hardware:** Smoketest auf dem echten Raspberry Pi 4 bestanden (Install, Ingress, Backup); das Messprotokoll nach [docs/performance.md](docs/performance.md) ist weiterhin offen.
 
 ---
 
 ## 11. Dokumentation
 
-Repo-README mit My-HA-Badge · Add-on-README im Store · `docs/installation.md` · `docs/backup.md` („eine Datei, restores über /data") · `docs/datenschutz.md` („es verlässt nichts den Pi") · `docs/faq.md` · `docs/entwicklung.md` (lokal starten ohne HA) · `docs/performance.md` · CHANGELOG · de/en-Übersetzungen der Options-Felder. Alle Dateien sind angelegt.
+Repo-README mit My-HA-Badge · Add-on-README im Store · `docs/installation.md` · `docs/backup.md` („eine Datei, restores über /data") · `docs/datenschutz.md` („es verlässt nichts den Pi") · `docs/faq.md` · `docs/fixkosten.md` · `docs/entwicklung.md` (lokal starten ohne HA) · `docs/performance.md` · CHANGELOG · de/en-Übersetzungen der Options-Felder. Alle Dateien sind angelegt.
 
 ---
 
-## 12. Definition of Done für v1.0
+## 12. Definition of Done für 0.9.0 / v1-Baseline
 
-- [ ] Add-on installierbar via Custom Repository, Image aus GHCR, kein lokaler Build nötig – **offen:** erster Push, GHCR-Paket public (URL ist auf `karst3nl/homeassistant-finance` festgelegt)
+- [x] Add-on installierbar via Custom Repository, Image aus GHCR, kein lokaler Build nötig
 - [x] Ingress-UI ohne eigene Ports und ohne eigenes Login
 - [x] Konten, Kategorien, manuelle Buchungen und Budgets vollständig bedienbar
 - [x] Auswertungen rechnerisch korrekt (Gegenprobe per Test)
-- [ ] Backup/Restore über `/data` funktioniert – Snapshot implementiert und getestet, HA-OS-Restore noch nicht manuell geprüft
+- [x] Backup über `/data` funktioniert – Snapshot implementiert und getestet (ein HA-OS-Restore wurde nicht manuell geprüft)
 - [x] Keine HA-API, keine Sensoren, keine externen Calls
 - [x] Tests grün, Docs vollständig, GPL-3.0-Lizenz und CHANGELOG vorhanden
-- [ ] Auf einem Raspberry Pi 4 gemessen und für gut befunden – **offen:** manuelles Messprotokoll
+- [x] Auf einem Raspberry Pi 4 installiert und für gut befunden (Nutzerbestätigung; kein automatisiertes Messprotokoll)
 
 ---
 
@@ -224,4 +230,4 @@ Repo-README mit My-HA-Badge · Add-on-README im Store · `docs/installation.md` 
 - Bankabruf via FinTS/HBCI – nur mit expliziter Freigabe, nie mit Zugangsdaten in der App-DB.
 - HA-Sensoren – falls doch gewünscht, über Supervisor-Proxy statt MQTT.
 - Multi-User / Rechte über `X-Remote-User-Id` – aktuell sieht jeder Admin dieselben Daten.
-- Wiederkehrende Buchungen, Belege, Sparziele, Export.
+- Belege, Sparziele, Export. Wiederkehrende Buchungen sind seit 0.10.0 umgesetzt (siehe [docs/fixkosten.md](docs/fixkosten.md)).

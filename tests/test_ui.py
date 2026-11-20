@@ -132,3 +132,121 @@ def test_stylesheet_wird_ausgeliefert(client: TestClient) -> None:
 
     assert response.status_code == 200
     assert "color-scheme" in response.text
+
+
+def test_konto_bearbeiten_ueber_ui(client: TestClient) -> None:
+    create_account(client)
+    edit_page = client.get("/ui/accounts/1/edit")
+    assert edit_page.status_code == 200
+    assert 'value="Giro"' in edit_page.text
+    assert 'value="100,00"' in edit_page.text
+
+    response = client.post(
+        "/ui/accounts/1",
+        data={
+            "name": "Giro neu",
+            "type": "savings",
+            "currency": "EUR",
+            "initial_balance": "250,00",
+            "active": "1",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 303, response.text
+    accounts = client.get("/ui/accounts").text
+    assert "Giro neu" in accounts
+    assert "Sparkonto" in accounts
+    assert "250,00 EUR" in accounts
+    assert "100,00 EUR" not in accounts
+
+
+def test_buchung_bearbeiten_ueber_ui(client: TestClient) -> None:
+    create_account(client)
+    client.post("/ui/categories", data={"name": "Lebensmittel", "type": "expense"})
+    create_expense(client, category_id="1")
+
+    edit_page = client.get("/ui/transactions/1/edit")
+    assert edit_page.status_code == 200
+    assert 'value="12,34"' in edit_page.text
+    assert 'value="REWE"' in edit_page.text
+
+    response = client.post(
+        "/ui/transactions/1",
+        data={
+            "direction": "income",
+            "booking_date": "2026-11-20",
+            "account_id": "1",
+            "amount": "20,00",
+            "counterparty": "Erstattung",
+            "category_id": "",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 303, response.text
+    page = client.get("/ui/transactions").text
+    assert "Erstattung" in page
+    assert "REWE" not in page
+    assert "20,00 EUR" in page
+    assert "120,00 EUR" in client.get("/").text
+
+
+def test_fixkosten_ueber_ui(client: TestClient) -> None:
+    create_account(client)
+    client.post("/ui/categories", data={"name": "Wohnen", "type": "expense"})
+
+    page = client.get("/ui/recurring")
+    assert "Noch keine Regeln vorhanden" in page.text
+    assert 'href="ui/recurring"' in client.get("/").text
+
+    today = client.get("/ui/recurring").text
+    assert "Neue Regel" in today
+
+    response = client.post(
+        "/ui/recurring",
+        data={
+            "name": "Miete",
+            "direction": "expense",
+            "interval": "monthly",
+            "amount": "900,00",
+            "account_id": "1",
+            "category_id": "1",
+            "start_date": "2026-11-01",
+            "counterparty": "Vermieter",
+            "active": "1",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 303, response.text
+    page = client.get("/ui/recurring").text
+    assert "Miete" in page
+    assert "900,00 EUR" in page
+    assert "Monatlich" in page
+    assert "Vermieter" in page
+    assert "automatisch (Fixkosten)" in client.get("/ui/transactions").text
+
+    edit_page = client.get("/ui/recurring/1/edit")
+    assert edit_page.status_code == 200
+    assert 'value="900,00"' in edit_page.text
+
+    response = client.post(
+        "/ui/recurring/1",
+        data={
+            "name": "Miete neu",
+            "direction": "expense",
+            "interval": "yearly",
+            "amount": "10.800,00",
+            "account_id": "1",
+            "category_id": "1",
+            "start_date": "2026-11-01",
+            "active": "1",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 303, response.text
+    assert "Miete neu" in client.get("/ui/recurring").text
+    assert "Jährlich" in client.get("/ui/recurring").text
+
+    response = client.post("/ui/recurring/1/delete", follow_redirects=False)
+    assert response.status_code == 303
+    assert "Noch keine Regeln vorhanden" in client.get("/ui/recurring").text
+    assert "Vermieter" in client.get("/ui/transactions").text

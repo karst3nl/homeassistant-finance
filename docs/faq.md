@@ -6,7 +6,7 @@ Das Add-on ist bewusst eine „reine UI": Es gibt keine HA-Entitäten, keine MQT
 
 ## Werden meine Bankkonten automatisch abgefragt?
 
-Nein. v1 unterstützt ausschließlich manuelle Erfassung. Es gibt keine Bankverbindung, kein FinTS/HBCI und keinen CSV-Import.
+Nein. Es gibt keine Bankverbindung, kein FinTS/HBCI und keinen CSV-Import. Wiederkehrende Buchungen werden ausschließlich aus selbst angelegten Regeln unter **Fixkosten** erzeugt – also lokal und manuell gepflegt.
 
 ## Warum ist das Panel nur für Admins sichtbar?
 
@@ -22,7 +22,11 @@ Die Währung wird pro Konto beim Anlegen gespeichert (Standard `EUR`). Die Anzei
 
 ## Warum lässt sich ein Konto mit Buchungen nicht löschen?
 
-Das würde die Buchungen verwaist lassen. Konto und Buchungen müssen zuerst konsistent aufgeräumt werden; die Oberfläche zeigt dann einen entsprechenden Hinweis.
+Das würde die Buchungen verwaist lassen. Konto und Buchungen müssen zuerst konsistent aufgeräumt werden; dasselbe gilt für Fixkosten-Regeln, die das Konto verwenden. Die Oberfläche zeigt dann einen entsprechenden Hinweis.
+
+## Wie funktionieren die automatischen Buchungen bei Fixkosten?
+
+Die Regeln unter **Fixkosten** enthalten nur Name, Betrag, Intervall und Fälligkeitsdatum. Beim Start des Add-ons und bei jedem Zugriff prüft Finance, welche Termine fällig sind, und legt daraus ganz normale Buchungen an. Ein eindeutiger Schlüssel verhindert Duplikate. Details: [fixkosten.md](fixkosten.md).
 
 ## Wie komme ich an meine Daten, wenn das Add-on nicht startet?
 

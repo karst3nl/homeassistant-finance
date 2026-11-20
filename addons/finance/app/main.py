@@ -12,6 +12,7 @@ from pathlib import Path
 
 from api import routes as api_routes
 from db import init_db
+from recurring import generate_due
 from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
 from starlette.middleware import Middleware
@@ -36,8 +37,9 @@ Scope = dict
 
 @asynccontextmanager
 async def lifespan(application: Starlette) -> AsyncIterator[None]:
-    """Datenbank beim Start öffnen und Migrationen anwenden."""
+    """Datenbank beim Start öffnen, Migrationen anwenden und Fälligkeiten buchen."""
     init_db()
+    generate_due()
     yield
 
 
@@ -91,6 +93,23 @@ class RequestLimitMiddleware:
         await self.app(scope, receive, send)
 
 
+class RecurringMiddleware:
+    """Fällige Fixkosten beim Zugriff erzeugen.
+
+    Der Supervisor ruft `/healthz` regelmäßig auf; so entstehen Buchungen auch
+    dann, wenn die Oberfläche über Wochen nicht geöffnet wird. Statische Dateien
+    lösen keine Datenbankabfrage aus.
+    """
+
+    def __init__(self, app: Callable) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] == "http" and not scope.get("path", "").startswith("/static/"):
+            generate_due()
+        await self.app(scope, receive, send)
+
+
 class SecurityHeadersMiddleware:
     """Minimale Security-Headers ohne Auswirkung auf die HA-Ingress-Einbettung."""
 
@@ -123,6 +142,7 @@ app = Starlette(
         Middleware(SupervisorOnlyMiddleware),
         Middleware(RequestLimitMiddleware),
         Middleware(SecurityHeadersMiddleware),
+        Middleware(RecurringMiddleware),
     ],
     lifespan=lifespan,
 )

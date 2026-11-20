@@ -1,0 +1,30 @@
+{% set selected_type = form.type or 'checking' %}
+<label>
+  Name
+  <input type="text" name="name" maxlength="200" value="{{ form.name or '' }}" required />
+</label>
+<label>
+  Typ
+  <select name="type">
+    <option value="checking" {% if selected_type == 'checking' %}selected{% endif %}>Girokonto</option>
+    <option value="savings" {% if selected_type == 'savings' %}selected{% endif %}>Sparkonto</option>
+    <option value="cash" {% if selected_type == 'cash' %}selected{% endif %}>Bargeld</option>
+    <option value="credit" {% if selected_type == 'credit' %}selected{% endif %}>Kreditkarte</option>
+    <option value="investment" {% if selected_type == 'investment' %}selected{% endif %}>Depot</option>
+  </select>
+</label>
+<label>
+  Währung
+  <input type="text" name="currency" maxlength="8" value="{{ form.currency or 'EUR' }}" />
+</label>
+<label>
+  Anfangssaldo
+  <input type="text" name="initial_balance" inputmode="decimal"
+         value="{{ form.initial_balance or '0' }}" />
+</label>
+<label class="wide checkbox">
+  <input type="checkbox" name="active" value="1"
+         {% if form.get('active', '1') == '1' %}checked{% endif %} />
+  Aktiv
+</label>
+<div class="wide actions"><button type="submit">{{ submit_label | default('Speichern') }}</button></div>

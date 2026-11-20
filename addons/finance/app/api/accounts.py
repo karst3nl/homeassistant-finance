@@ -96,7 +96,11 @@ def _delete(request: Request) -> Response:
             cursor = connection.execute("DELETE FROM accounts WHERE id = ?", (account_id,))
     except sqlite3.IntegrityError as exc:
         raise HTTPException(
-            status_code=409, detail="Konto kann nicht gelöscht werden, solange Buchungen existieren"
+            status_code=409,
+            detail=(
+                "Konto kann nicht gelöscht werden, solange Buchungen oder Fixkosten-Regeln "
+                "existieren"
+            ),
         ) from exc
     if cursor.rowcount == 0:
         raise HTTPException(status_code=404, detail="Konto nicht gefunden")

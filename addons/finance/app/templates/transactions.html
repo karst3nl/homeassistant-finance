@@ -38,6 +38,7 @@
         <td>
           {{ entry.counterparty or entry.description or '–' }}
           {% if entry.description and entry.counterparty %}<small>{{ entry.description }}</small>{% endif %}
+          {% if entry.source == 'recurring' %}<small>automatisch (Fixkosten)</small>{% endif %}
         </td>
         <td>{{ entry.account_name }}</td>
         <td>{{ entry.category_name or '–' }}</td>
@@ -45,9 +46,12 @@
           {{ entry.amount_cents | cents }}
         </td>
         <td class="right">
-          <form method="post" action="ui/transactions/{{ entry.id }}/delete" class="inline">
-            <button type="submit" class="danger" title="Buchung löschen">×</button>
-          </form>
+          <div class="table-actions">
+            <a href="ui/transactions/{{ entry.id }}/edit" title="Buchung bearbeiten">Bearbeiten</a>
+            <form method="post" action="ui/transactions/{{ entry.id }}/delete" class="inline">
+              <button type="submit" class="danger" title="Buchung löschen">×</button>
+            </form>
+          </div>
         </td>
       </tr>
       {% endfor %}

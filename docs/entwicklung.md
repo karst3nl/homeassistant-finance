@@ -7,6 +7,8 @@
 - `addons/finance/app/api/` – interne CRUD-Endpunkte
 - `addons/finance/app/ui.py` – servergerenderte Oberfläche
 - `addons/finance/app/stats.py`, `reports.py`, `charts.py` – Auswertungen und SVG-Charts
+- `addons/finance/app/recurring.py` – Fixkosten-Regeln, Terminlogik und Buchungserzeugung
+- `addons/finance/app/migrations/` – nummerierte SQLite-Migrationen
 - `tests/` – pytest-Integrationstests gegen temporäre Datenbanken
 
 Ein Prozess, eine Datenbankdatei, keine JavaScript-Build-Tools. Laufzeit-Abhängigkeiten sind in `requirements-dev.txt` identisch zum Dockerfile gepinnt.
@@ -41,7 +43,7 @@ Optional: `python scripts/bench.py` misst die Oberfläche gegen 500 Beispielbuch
 
 ## Migrationen
 
-Neue SQL-Dateien in `addons/finance/app/migrations/` mit aufsteigender Nummer (`002_...sql`) anlegen. `init_db()` liest `PRAGMA user_version` und wendet alle neueren Migrationen beim Start an. Bestehende Datenbanken werden nicht gelöscht.
+Neue SQL-Dateien in `addons/finance/app/migrations/` mit aufsteigender Nummer (zuletzt `002_recurring.sql`) anlegen. `init_db()` liest `PRAGMA user_version` und wendet alle neueren Migrationen beim Start an. Bestehende Datenbanken werden nicht gelöscht. Für jede Migration sollte ein Test gegen eine Datenbank im alten Schema existieren (siehe `tests/test_recurring.py`).
 
 ## Release
 

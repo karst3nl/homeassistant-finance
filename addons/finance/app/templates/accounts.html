@@ -11,14 +11,17 @@
     <tbody>
       {% for account in accounts %}
       <tr>
-        <td>{{ account.name }}</td>
+        <td>{{ account.name }}{% if not account.active %}<small>inaktiv</small>{% endif %}</td>
         <td>{{ account.type }}</td>
         <td>{{ account.currency }}</td>
         <td class="right mono">{{ account.balance_cents | cents }}</td>
         <td class="right">
-          <form method="post" action="ui/accounts/{{ account.id }}/delete" class="inline">
-            <button type="submit" class="danger" title="Konto löschen">×</button>
-          </form>
+          <div class="table-actions">
+            <a href="ui/accounts/{{ account.id }}/edit" title="Konto bearbeiten">Bearbeiten</a>
+            <form method="post" action="ui/accounts/{{ account.id }}/delete" class="inline">
+              <button type="submit" class="danger" title="Konto löschen">×</button>
+            </form>
+          </div>
         </td>
       </tr>
       {% endfor %}
@@ -32,29 +35,8 @@
 <section class="card">
   <h2>Neues Konto</h2>
   <form method="post" action="ui/accounts" class="form-grid">
-    <label>
-      Name
-      <input type="text" name="name" maxlength="200" value="{{ form.name or '' }}" required />
-    </label>
-    <label>
-      Typ
-      <select name="type">
-        <option value="checking" {% if form.type != 'savings' %}selected{% endif %}>Girokonto</option>
-        <option value="savings" {% if form.type == 'savings' %}selected{% endif %}>Sparkonto</option>
-        <option value="cash" {% if form.type == 'cash' %}selected{% endif %}>Bargeld</option>
-        <option value="credit" {% if form.type == 'credit' %}selected{% endif %}>Kreditkarte</option>
-        <option value="investment" {% if form.type == 'investment' %}selected{% endif %}>Depot</option>
-      </select>
-    </label>
-    <label>
-      Währung
-      <input type="text" name="currency" maxlength="8" value="{{ form.currency or 'EUR' }}" />
-    </label>
-    <label>
-      Anfangssaldo
-      <input type="text" name="initial_balance" inputmode="decimal" value="{{ form.initial_balance or '0' }}" />
-    </label>
-    <div class="wide actions"><button type="submit">Konto anlegen</button></div>
+    {% set submit_label = 'Konto anlegen' %}
+    {% include "_account_form.html" %}
   </form>
 </section>
 {% endblock %}

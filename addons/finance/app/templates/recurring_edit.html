@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Fixkosten bearbeiten · Finanzen{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h2>Regel bearbeiten: {{ rule.name }}</h2>
+    <a href="ui/recurring">Zurück zu den Fixkosten</a>
+  </div>
+  <p class="muted">Bereits erzeugte Buchungen werden nicht verändert.</p>
+  <form method="post" action="ui/recurring/{{ rule.id }}" class="form-grid">
+    {% set submit_label = 'Regel speichern' %}
+    {% include "_recurring_form.html" %}
+  </form>
+</section>
+{% endblock %}

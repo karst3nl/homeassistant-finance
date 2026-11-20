@@ -132,6 +132,43 @@ def test_stylesheet_wird_ausgeliefert(client: TestClient) -> None:
 
     assert response.status_code == 200
     assert "color-scheme" in response.text
+    assert "nav a.active" in response.text
+
+
+def test_aktiver_menupunkt_wird_markiert(client: TestClient) -> None:
+    pages = {
+        "/": "Übersicht",
+        "/ui/transactions": "Buchungen",
+        "/ui/budgets": "Budgets",
+        "/ui/recurring": "Fixkosten",
+        "/ui/reports": "Auswertungen",
+        "/ui/accounts": "Konten",
+        "/ui/categories": "Kategorien",
+    }
+    for path, label in pages.items():
+        page = client.get(path)
+        assert page.status_code == 200, path
+        assert page.text.count('aria-current="page"') == 1, path
+        assert f'class="active" aria-current="page">{label}</a>' in page.text, path
+
+    ingress_page = client.get(
+        "/ui/accounts", headers={"X-Ingress-Path": "/api/hassio_ingress/tok/"}
+    )
+    assert 'class="active" aria-current="page">Konten</a>' in ingress_page.text
+
+
+def test_aktiver_menupunkt_auf_bearbeitungsseiten(client: TestClient) -> None:
+    create_account(client)
+    create_expense(client)
+
+    for path, label in (
+        ("/ui/accounts/1/edit", "Konten"),
+        ("/ui/transactions/1/edit", "Buchungen"),
+    ):
+        page = client.get(path)
+        assert page.status_code == 200, path
+        assert page.text.count('aria-current="page"') == 1, path
+        assert f'class="active" aria-current="page">{label}</a>' in page.text, path
 
 
 def test_konto_bearbeiten_ueber_ui(client: TestClient) -> None:

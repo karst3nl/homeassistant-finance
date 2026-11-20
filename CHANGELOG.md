@@ -2,6 +2,13 @@
 
 Alle nennenswerten Änderungen werden hier dokumentiert. Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionierung an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.10.1] - 2026-11-20
+
+### Hinzugefügt
+
+- Aktiver Menüpunkt in der Navigation: Die aktuelle Seite ist farblich, fett und unterstrichen markiert und zusätzlich per `aria-current="page"` für Screenreader erkennbar
+- Die Markierung bleibt auf Bearbeitungsseiten und hinter Home-Assistant-Ingress-Pfaden erhalten
+
 ## [0.10.0] - 2026-11-20
 
 ### Hinzugefügt
@@ -20,7 +27,7 @@ Alle nennenswerten Änderungen werden hier dokumentiert. Das Format orientiert s
 
 ## [0.9.0] - 2026-11-20
 
-Release-Kandidat für v1.0. Noch nicht veröffentlicht: finale Repository-URL, GHCR-Image und Pi-4-Messung stehen aus.
+Erste veröffentlichte Version. Repository-URL und GHCR-Image stehen; die Installation wurde auf dem Raspberry Pi 4 bestätigt.
 
 ### Hinzugefügt
 

@@ -37,6 +37,13 @@ body {
 nav { display: flex; flex-wrap: wrap; gap: 16px; }
 nav a { color: var(--muted); text-decoration: none; }
 nav a:hover { color: var(--accent); }
+nav a.active {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
 
 main { max-width: 960px; margin: 0 auto; padding: 20px; display: grid; gap: 16px; }
 .card {

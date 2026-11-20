@@ -4,7 +4,7 @@
 
 Ein schlankes, vollständig lokales Home-Assistant-Add-on für persönliche Finanzen. Kein Cloud-Konto, keine Bankverbindung, keine zusätzlichen Add-ons – nur ein Webserver-Prozess, eine SQLite-Datei und eine Oberfläche in Home Assistant.
 
-> **Status:** Version **0.9.0** ist veröffentlicht und auf dem Raspberry Pi 4 getestet. Die Weiterentwicklung **0.10.0** ergänzt Bearbeitung und Fixkosten. Plan: [ROADMAP.md](ROADMAP.md).
+> **Status:** Version **0.9.0** ist veröffentlicht und auf dem Raspberry Pi 4 getestet. **0.10.1** ergänzt Bearbeitung, Fixkosten und die Markierung des aktiven Menüpunkts. Plan: [ROADMAP.md](ROADMAP.md).
 
 ## Umfang in v1
 
@@ -78,6 +78,7 @@ Die Repository-URL `https://github.com/karst3nl/homeassistant-finance` steht in 
 
 - `0.9.0`: erstes veröffentlichtes Image, vom Pi-4-Test bestätigt.
 - `0.10.0`: Bearbeitung und Fixkosten.
+- `0.10.1`: Aktiver Menüpunkt in der Navigation.
 
 Ein Release publiziert `.github/workflows/release.yaml`: Es baut und signiert die Images für `aarch64`/`amd64`, pusht die Version und `latest` nach GHCR und veröffentlicht das Multi-Arch-Manifest. Das GHCR-Paket ist öffentlich. Das Image wird ausschließlich über das Custom Repository installiert; ein lokaler Build ist nicht nötig.
 

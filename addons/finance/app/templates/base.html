@@ -10,14 +10,19 @@
   <body>
     <header class="topbar">
       <strong class="brand">Finanzen</strong>
-      <nav>
-        <a href="">Übersicht</a>
-        <a href="ui/transactions">Buchungen</a>
-        <a href="ui/budgets">Budgets</a>
-        <a href="ui/recurring">Fixkosten</a>
-        <a href="ui/reports">Auswertungen</a>
-        <a href="ui/accounts">Konten</a>
-        <a href="ui/categories">Kategorien</a>
+      <nav aria-label="Hauptnavigation">
+        {% set nav_items = [
+          ('overview', '', 'Übersicht'),
+          ('transactions', 'ui/transactions', 'Buchungen'),
+          ('budgets', 'ui/budgets', 'Budgets'),
+          ('recurring', 'ui/recurring', 'Fixkosten'),
+          ('reports', 'ui/reports', 'Auswertungen'),
+          ('accounts', 'ui/accounts', 'Konten'),
+          ('categories', 'ui/categories', 'Kategorien'),
+        ] %}
+        {% for key, href, label in nav_items %}
+        <a href="{{ href }}"{% if active_nav == key %} class="active" aria-current="page"{% endif %}>{{ label }}</a>
+        {% endfor %}
       </nav>
     </header>
     <main>

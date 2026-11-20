@@ -57,9 +57,35 @@ def _base(request: Request) -> str:
     return value if value.endswith("/") else value + "/"
 
 
+_NAV_PREFIXES = (
+    ("ui/transactions", "transactions"),
+    ("ui/budgets", "budgets"),
+    ("ui/recurring", "recurring"),
+    ("ui/reports", "reports"),
+    ("ui/accounts", "accounts"),
+    ("ui/categories", "categories"),
+)
+
+
+def _active_nav(request: Request) -> str:
+    """Schlüssel des aktiven Menüeintrags aus dem aktuellen Pfad ableiten."""
+    path = request.url.path
+    base = _base(request).rstrip("/")
+    if base and path.startswith(base + "/"):
+        path = path[len(base) :]
+    path = path.lstrip("/")
+    if not path:
+        return "overview"
+    for prefix, key in _NAV_PREFIXES:
+        if path == prefix or path.startswith(prefix + "/"):
+            return key
+    return ""
+
+
 def _render(request: Request, name: str, context: dict | None = None, status_code: int = 200):
     data = dict(context or {})
     data.setdefault("base", _base(request))
+    data.setdefault("active_nav", _active_nav(request))
     data.setdefault("errors", [])
     data.setdefault("form", {})
     return templates.TemplateResponse(request, name, data, status_code=status_code)
@@ -231,6 +257,7 @@ async def create_transaction(request: Request) -> Response:
                 "categories": _all_categories(),
                 "errors": errors,
                 "form": form,
+                "active_nav": "overview",
             },
             status_code=400,
         )

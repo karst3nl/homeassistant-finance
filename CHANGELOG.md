@@ -2,6 +2,12 @@
 
 Alle nennenswerten Änderungen werden hier dokumentiert. Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionierung an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.15.2] - 2026-11-20
+
+### Geändert
+
+- Der Wert der Karte **Ausgaben diesen Monat** wird jetzt rot dargestellt
+
 ## [0.15.1] - 2026-11-20
 
 ### Behoben

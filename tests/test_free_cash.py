@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import date
 
 import recurring
@@ -92,6 +93,14 @@ def test_dashboard_zeigt_frei_verfuegbares_geld_oben(client: TestClient) -> None
     assert "Gehalt − Fixkosten − geplante Umbuchungen" in text
     assert text.index("Frei verfügbares Geld") < text.index("Saldo gesamt")
     assert text.index("Saldo gesamt") < text.index("Ausgaben diesen Monat")
+
+
+def test_monatsausgaben_sind_rot(client: TestClient) -> None:
+    page = client.get("/").text
+    assert re.search(
+        r"Ausgaben diesen Monat</h2>\s*<p class=\"value negative\">",
+        page,
+    )
 
 
 def test_negatives_frei_verfuegbares_geld_wird_gekennzeichnet(client: TestClient) -> None:

@@ -98,6 +98,15 @@ button.danger:hover { color: #e06262; }
 label.checkbox { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 14px; }
 label.checkbox input { width: auto; }
 a { color: var(--accent); }
+a.button {
+  display: inline-block;
+  padding: 9px 16px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
 .errors {
   border: 1px solid #e06262;
   border-radius: 12px;

@@ -4,6 +4,7 @@
 
 - `addons/finance/app/main.py` – Starlette-App, Middlewares, Lifespan
 - `addons/finance/app/db.py` – SQLite-Verbindungen und Migrationen
+- `addons/finance/app/backup.py` – HA-Snapshot und herunterladbare SQLite-Kopien
 - `addons/finance/app/api/` – interne CRUD-Endpunkte
 - `addons/finance/app/ui.py` – servergerenderte Oberfläche
 - `addons/finance/app/stats.py`, `reports.py`, `charts.py` – Auswertungen und SVG-Charts

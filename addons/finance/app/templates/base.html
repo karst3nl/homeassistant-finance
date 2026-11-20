@@ -20,6 +20,7 @@
           ('reports', 'ui/reports', 'Auswertungen'),
           ('accounts', 'ui/accounts', 'Konten'),
           ('categories', 'ui/categories', 'Kategorien'),
+          ('backups', 'ui/backups', 'Backups'),
         ] %}
         {% for key, href, label in nav_items %}
         <a href="{{ href }}"{% if active_nav == key %} class="active" aria-current="page"{% endif %}>{{ label }}</a>

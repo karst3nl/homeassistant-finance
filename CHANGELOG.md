@@ -2,6 +2,20 @@
 
 Alle nennenswerten Änderungen werden hier dokumentiert. Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionierung an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.12.0] - 2026-11-20
+
+### Hinzugefügt
+
+- Neuer Menüpunkt **Backups** mit Download der aktuellen Datenbank als konsistente SQLite-Datei
+- Backups im Add-on speichern, auflisten, erneut herunterladen und löschen (`/data/backups`)
+- Backups werden über `sqlite3.Connection.backup()` erzeugt – konsistent trotz WAL-Modus und laufender Buchungen
+- Streng geprüfte Dateinamen für Downloads, sodass nur selbst erzeugte Backup-Dateien zugänglich sind
+
+### Geändert
+
+- `backup.py` teilt sich die Kopierlogik zwischen HA-Snapshot und herunterladbaren Backups
+- Doku zu Backup/Restore, FAQ, Add-on-README und Development-Übersicht aktualisiert
+
 ## [0.11.0] - 2026-11-20
 
 ### Hinzugefügt

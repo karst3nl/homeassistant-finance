@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Backups · Finanzen{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h2>Backups</h2>
+    <a href="ui/backups/download" class="button">Aktuelle Datenbank herunterladen</a>
+  </div>
+  <p class="muted">
+    Die Datei ist eine konsistente SQLite-Kopie aller Konten, Buchungen, Budgets und Fixkosten.
+    Der Download ändert nichts an deinen Daten und legt keine Datei im Add-on ab.
+  </p>
+  <form method="post" action="ui/backups" class="form-grid">
+    <p class="wide muted">
+      Oder eine Kopie im Add-on speichern, um sie später erneut herunterzuladen. Gespeicherte
+      Backups liegen unter <code>/data/backups</code> und werden auch von Home-Assistant-Backups
+      mitgesichert.
+    </p>
+    <div class="wide actions">
+      <button type="submit">Backup speichern</button>
+    </div>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Gespeicherte Backups</h2>
+  {% if backups %}
+  <table>
+    <thead>
+      <tr>
+        <th>Erstellt</th><th>Datei</th><th class="right">Größe</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in backups %}
+      <tr>
+        <td class="mono">{{ item.created }}</td>
+        <td class="mono">{{ item.name }}</td>
+        <td class="right mono">{{ item.size }}</td>
+        <td class="right">
+          <div class="table-actions">
+            <a href="ui/backups/{{ item.name }}/download" title="Backup herunterladen">Herunterladen</a>
+            <form method="post" action="ui/backups/{{ item.name }}/delete" class="inline">
+              <button type="submit" class="danger" title="Backup löschen">×</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Noch keine Backups vorhanden.</p>
+  {% endif %}
+</section>
+{% endblock %}

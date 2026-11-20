@@ -8,6 +8,7 @@ Ein vollständig lokales Add-on für persönliche Finanzen. Es läuft komplett a
 - Einnahmen und Ausgaben manuell erfassen, filtern, bearbeiten und löschen
 - Monatliche und jährliche Fixkosten: Regeln pflegen und fällige Buchungen automatisch erzeugen
 - Umbuchungen zwischen zwei Konten als zusammenhängendes Buchungspaar
+- Herunterladbare Backups: aktuelle Datenbank direkt speichern oder Kopien verwalten
 - Budgets pro Kategorie und Monat inklusive Fortschrittsanzeige
 - Dashboard mit Saldo und Monatsausgaben
 - Auswertungen mit Monatsvergleich, Kategorie-Anteilen und Saldo-Verlauf als SVG-Charts
@@ -21,11 +22,13 @@ Wiederkehrende Posten wie Miete oder Versicherung werden unter **Fixkosten** als
 
 Unter **Umbuchungen** verschiebst du Guthaben zwischen zwei Konten. Finance legt dafür zwei verknüpfte Buchungen an; der Gesamtsaldo bleibt gleich. Umbuchungen zählen nicht als Einnahme oder Ausgabe und beeinflussen keine Budgets.
 
+Unter **Backups** lädst du die aktuelle Datenbank als SQLite-Datei herunter oder speicherst eine Kopie im Add-on, die du später erneut laden und löschen kannst. Die Dateien sind konsistent – auch während Buchungen geschrieben werden.
+
 Nach dem Start erscheint **Finanzen** in der Seitenleiste. Ein Klick öffnet die Oberfläche innerhalb von Home Assistant. Ein separates Passwort gibt es nicht – die Anmeldung läuft über Home Assistant. Das Panel ist standardmäßig nur für Admins sichtbar.
 
 ## Daten und Backup
 
-Alle Daten liegen in `/data/finance.db`. Vor einem Home-Assistant-Backup erzeugt das Add-on einen konsistenten Snapshot; danach wird er wieder entfernt. Backups enthalten persönliche Finanzdaten – bitte entsprechend schützen.
+Alle Daten liegen in `/data/finance.db`. Vor einem Home-Assistant-Backup erzeugt das Add-on einen konsistenten Snapshot; danach wird er wieder entfernt. Eigene Backups liegen unter `/data/backups` und werden ebenfalls mitgesichert. Backups enthalten persönliche Finanzdaten – bitte entsprechend schützen.
 
 ## Konfiguration
 

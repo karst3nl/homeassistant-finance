@@ -1,7 +1,7 @@
 # Roadmap: Home-Assistant-Finance
 
 **Stand:** 2026-11-20  
-**Status:** Phase 0–5 abgeschlossen (0.9.0 veröffentlicht und auf dem Pi 4 getestet); Phase 6 ergänzt Umbuchungen zwischen Konten (0.11.0)  
+**Status:** Phase 0–5 abgeschlossen (0.9.0 veröffentlicht und auf dem Pi 4 getestet); Phase 6 ergänzt Umbuchungen (0.11.0), Phase 7 herunterladbare Backups (0.12.0)  
 **Repo:** GitHub, Custom Repository für Home Assistant
 
 ---
@@ -38,6 +38,7 @@ Ein vollständig lokales, quelloffenes Add-on zur Verwaltung persönlicher Finan
 | Bewusst später | CSV-Import, FinTS/HBCI, Belege, Sparziele, Sensoren, Multi-User |
 | Nach v1 (0.10.0) | Bearbeitung von Konten/Buchungen, Fixkosten mit automatischer Buchung |
 | Nach v1 (0.11.0) | Umbuchungen zwischen Konten als zusammenhängendes Paar |
+| Nach v1 (0.12.0) | Herunterladbare Backups direkt aus der Oberfläche |
 
 **Ressourcenziele (auf dem Pi 4 messbar):** Image < 80 MB · RAM < 80 MB · Start < 5 s · CPU im Leerlauf ~0 %.
 
@@ -85,7 +86,7 @@ addons/
     run.sh                       # Uvicorn-Start mit LOG_LEVEL aus den Optionen
     app/
       main.py                    # Uvicorn-Einstieg, IP-Sperre, Header, Limits
-      backup.py                  # Konsistenter SQLite-Snapshot für HA-Backups
+      backup.py                  # HA-Snapshot und herunterladbare SQLite-Kopien
       db.py                      # Verbindungen, PRAGMAs, Migrationen
       money.py, validation.py    # Cent-Arithmetik, Eingabeprüfung
       stats.py, reports.py       # Dashboard-Daten, Auswertungen
@@ -96,7 +97,7 @@ addons/
       api/                       # accounts, categories, transactions, transfers, budgets, recurring, stats
       templates/, static/        # Jinja2-Seiten und CSS ohne JS/CDN
 docs/
-  installation.md, backup.md, datenschutz.md, faq.md, fixkosten.md, umbuchungen.md, entwicklung.md, performance.md
+  installation.md, backup.md (inkl. Download), datenschutz.md, faq.md, fixkosten.md, umbuchungen.md, entwicklung.md, performance.md
 scripts/
   validate_config.py, bench.py   # Konfigurationscheck und Performance-Messung
 tests/
@@ -133,7 +134,7 @@ tests/
 
 Die Reihenfolge ist absichtlich: erst Datenkern, dann UI. Eine hübsche Oberfläche über einer unklaren Datenbank ist der häufigste Grund für spätere Rewrites.
 
-**Fortschritt:** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ (UI bewusst ohne JavaScript/HTMX umgesetzt) · Phase 3 ✅ · Phase 4 ✅ (0.9.0 veröffentlicht, Pi-4-Test bestanden) · Phase 5 ✅ (0.10.1) · Phase 6 ✅ (Umbuchungen in 0.11.0).
+**Fortschritt:** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ (UI bewusst ohne JavaScript/HTMX umgesetzt) · Phase 3 ✅ · Phase 4 ✅ (0.9.0 veröffentlicht, Pi-4-Test bestanden) · Phase 5 ✅ (0.10.1) · Phase 6 ✅ (Umbuchungen in 0.11.0) · Phase 7 ✅ (Backups-Download in 0.12.0).
 
 | Phase | Inhalt | Meilenstein / Definition of Done | ca. Aufwand* |
 |---|---|---|---|
@@ -144,7 +145,8 @@ Die Reihenfolge ist absichtlich: erst Datenkern, dann UI. Eine hübsche Oberflä
 | **4 – Härtung & Veröffentlichung** | Security-Review ✅, Limits/Header/Snapshot ✅, de/en-Übersetzungen ✅, Docs ✅, Release-CI ✅, GHCR public ✅, Pi-4-Smoketest ✅ | 0.9.0 installierbar via Custom Repository | 2–4 d |
 | **5 – Bearbeitung & Fixkosten** | Konten/Buchungen bearbeiten ✅, Fixkosten-Seite mit automatischer Buchung ✅, Migration 002 ✅, Doku ✅ | 0.10.1 veröffentlicht, Fixkosten auf dem Pi 4 geprüft | 1–2 d |
 | **6 – Umbuchungen** | Umbuchungs-Seite ✅, zwei verknüpfte Buchungen ✅, Migration 003 ✅, Stats/Reports bereinigt ✅, Doku ✅ | 0.11.0 veröffentlicht, Umbuchungen auf dem Pi 4 geprüft | 1–2 d |
-| **7 – Optional (später)** | CSV-Import mit Mapping/Dedup, FinTS/HBCI, Belege, Sparziele, HA-Sensoren, Multi-User | Nur nach Feedback der ersten Nutzer | offen |
+| **7 – Backups** | Menüpunkt **Backups** ✅, direkter SQLite-Download ✅, gespeicherte Kopien mit Download/Löschen ✅, strikte Dateinamensprüfung ✅, Doku ✅ | 0.12.0 veröffentlicht, Download auf dem Pi 4 geprüft | 1–2 d |
+| **8 – Optional (später)** | CSV-Import mit Mapping/Dedup, FinTS/HBCI, Belege, Sparziele, HA-Sensoren, Multi-User | Nur nach Feedback der ersten Nutzer | offen |
 
 \* Grobe Schätzungen für eine Person, keine Zusage.
 

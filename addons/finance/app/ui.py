@@ -13,6 +13,7 @@ from datetime import date
 from pathlib import Path
 from urllib.parse import parse_qs
 
+import backup
 import recurring
 import transfers
 from charts import bar_chart, donut_chart, line_chart
@@ -27,9 +28,10 @@ from reports import (
     normalize_period,
     shift_period,
 )
+from starlette.background import BackgroundTask
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
-from starlette.responses import RedirectResponse, Response
+from starlette.responses import FileResponse, RedirectResponse, Response
 from starlette.routing import Route
 from starlette.templating import Jinja2Templates
 from stats import dashboard_data, filtered_transactions
@@ -66,6 +68,7 @@ _NAV_PREFIXES = (
     ("ui/reports", "reports"),
     ("ui/accounts", "accounts"),
     ("ui/categories", "categories"),
+    ("ui/backups", "backups"),
 )
 
 
@@ -128,6 +131,15 @@ def _account_options() -> list[dict]:
 def _amount_input(cents: int) -> str:
     """Betrag für ein Textfeld – ohne Tausendertrennzeichen, mit Komma."""
     return f"{cents_to_decimal(abs(cents)):.2f}".replace(".", ",")
+
+
+def _format_size(num_bytes: int) -> str:
+    value = num_bytes / 1024
+    unit = "KiB"
+    if value >= 1024:
+        value /= 1024
+        unit = "MiB"
+    return f"{value:.1f} {unit}"
 
 
 def _check_form_references(connection, account_id: int, category_id: int | None) -> None:
@@ -959,6 +971,66 @@ def delete_recurring(request: Request) -> Response:
     return _redirect(request, "ui/recurring")
 
 
+def _backups_context() -> dict:
+    return {
+        "backups": [
+            {**item, "size": _format_size(item["size_bytes"])} for item in backup.list_backups()
+        ]
+    }
+
+
+def _backup_error(request: Request, exc: Exception):
+    return _render(
+        request,
+        "backups.html",
+        {
+            **_backups_context(),
+            "errors": [f"Backup konnte nicht erstellt werden: {exc}"],
+        },
+        status_code=500,
+    )
+
+
+def backups_page(request: Request):
+    return _render(request, "backups.html", _backups_context())
+
+
+def create_backup(request: Request) -> Response:
+    try:
+        backup.create_backup()
+    except (OSError, sqlite3.Error) as exc:
+        return _backup_error(request, exc)
+    return _redirect(request, "ui/backups")
+
+
+def download_current_backup(request: Request) -> Response:
+    """Aktuelle Datenbank einmalig herunterladen, ohne sie zu speichern."""
+    try:
+        path = backup.create_backup()
+    except (OSError, sqlite3.Error) as exc:
+        return _backup_error(request, exc)
+    return FileResponse(
+        path,
+        media_type="application/x-sqlite3",
+        filename=path.name,
+        background=BackgroundTask(lambda: path.unlink(missing_ok=True)),
+    )
+
+
+def download_backup(request: Request) -> Response:
+    name = request.path_params["name"]
+    path = backup.backup_path(name)
+    if path is None:
+        raise HTTPException(status_code=404, detail="Backup nicht gefunden")
+    return FileResponse(path, media_type="application/x-sqlite3", filename=name)
+
+
+def delete_backup(request: Request) -> Response:
+    if not backup.delete_backup(request.path_params["name"]):
+        raise HTTPException(status_code=404, detail="Backup nicht gefunden")
+    return _redirect(request, "ui/backups")
+
+
 routes = [
     Route("/", dashboard, methods=["GET"]),
     Route("/ui/transactions", transactions_page, methods=["GET"]),
@@ -989,4 +1061,9 @@ routes = [
     Route("/ui/recurring/{rule_id}/edit", edit_recurring_page, methods=["GET"]),
     Route("/ui/recurring/{rule_id}", update_recurring, methods=["POST"]),
     Route("/ui/recurring/{rule_id}/delete", delete_recurring, methods=["POST"]),
+    Route("/ui/backups", backups_page, methods=["GET"]),
+    Route("/ui/backups", create_backup, methods=["POST"]),
+    Route("/ui/backups/download", download_current_backup, methods=["GET"]),
+    Route("/ui/backups/{name}/download", download_backup, methods=["GET"]),
+    Route("/ui/backups/{name}/delete", delete_backup, methods=["POST"]),
 ]

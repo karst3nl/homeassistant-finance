@@ -144,6 +144,7 @@ def test_aktiver_menupunkt_wird_markiert(client: TestClient) -> None:
         "/ui/reports": "Auswertungen",
         "/ui/accounts": "Konten",
         "/ui/categories": "Kategorien",
+        "/ui/backups": "Backups",
     }
     for path, label in pages.items():
         page = client.get(path)

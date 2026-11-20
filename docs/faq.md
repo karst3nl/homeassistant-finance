@@ -34,11 +34,11 @@ Unter **Umbuchungen** legst du fest, von welchem Konto wie viel auf welches ande
 
 ## Wie komme ich an meine Daten, wenn das Add-on nicht startet?
 
-Die Datenbank liegt unter `/data/finance.db`. Über ein Home-Assistant-Backup oder den Dateizugriff auf das Gerät lässt sie sich kopieren. Sie ist eine normale SQLite-Datei.
+Am einfachsten über den Menüpunkt **Backups**: Dort lässt sich die Datenbank direkt als SQLite-Datei herunterladen oder eine Kopie speichern und später laden. Die Dateien liegen unter `/data/finance.db` beziehungsweise `/data/backups` und sind normale SQLite-Dateien; alternativ funktionieren ein Home-Assistant-Backup oder der Dateizugriff auf das Gerät. Details: [backup.md](backup.md).
 
 ## Gibt es eine Schnittstelle für andere Programme?
 
-Innerhalb des Containers gibt es eine interne HTTP-API (`/api/...`). Sie ist nicht nach außen erreichbar und keine öffentliche, stabile Schnittstelle. Für Exporte ist in einer späteren Version ein Dateiexport geplant.
+Innerhalb des Containers gibt es eine interne HTTP-API (`/api/...`). Sie ist nicht nach außen erreichbar und keine öffentliche, stabile Schnittstelle. Für einen Export von Daten steht der Menüpunkt **Backups** mit dem SQLite-Download zur Verfügung.
 
 ## Unterstützt das Add-on Home Assistant Core oder Container?
 

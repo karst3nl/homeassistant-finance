@@ -4,7 +4,7 @@
 
 Ein schlankes, vollständig lokales Home-Assistant-Add-on für persönliche Finanzen. Kein Cloud-Konto, keine Bankverbindung, keine zusätzlichen Add-ons – nur ein Webserver-Prozess, eine SQLite-Datei und eine Oberfläche in Home Assistant.
 
-> **Status:** Version **0.9.0** ist veröffentlicht und auf dem Raspberry Pi 4 getestet. **0.11.0** ergänzt Bearbeitung, Fixkosten, aktive Navigation und Umbuchungen zwischen Konten. Plan: [ROADMAP.md](ROADMAP.md).
+> **Status:** Version **0.9.0** ist veröffentlicht und auf dem Raspberry Pi 4 getestet. **0.12.0** ergänzt Bearbeitung, Fixkosten, aktive Navigation, Umbuchungen und herunterladbare Backups. Plan: [ROADMAP.md](ROADMAP.md).
 
 ## Umfang in v1
 
@@ -12,6 +12,7 @@ Ein schlankes, vollständig lokales Home-Assistant-Add-on für persönliche Fina
 - Buchungen manuell erfassen, bearbeiten und löschen
 - Monatliche und jährliche Fixkosten mit automatischer Buchung ([Anleitung](docs/fixkosten.md))
 - Umbuchungen zwischen Konten als zusammenhängendes Buchungspaar ([Anleitung](docs/umbuchungen.md))
+- Herunterladbare Backups und konsistente SQLite-Kopien ([Anleitung](docs/backup.md))
 - Budgets pro Kategorie und Monat
 - Übersicht mit Saldo, Monatsausgaben und SVG-Charts
 - 100 % lokal, Ingress-UI ohne eigene Ports und ohne eigenes Login
@@ -82,6 +83,7 @@ Die Repository-URL `https://github.com/karst3nl/homeassistant-finance` steht in 
 - `0.10.0`: Bearbeitung und Fixkosten.
 - `0.10.1`: Aktiver Menüpunkt in der Navigation.
 - `0.11.0`: Umbuchungen zwischen Konten.
+- `0.12.0`: Menüpunkt **Backups** mit herunterladbaren SQLite-Kopien.
 
 Ein Release publiziert `.github/workflows/release.yaml`: Es baut und signiert die Images für `aarch64`/`amd64`, pusht die Version und `latest` nach GHCR und veröffentlicht das Multi-Arch-Manifest. Das GHCR-Paket ist öffentlich. Das Image wird ausschließlich über das Custom Repository installiert; ein lokaler Build ist nicht nötig.
 

@@ -1,10 +1,10 @@
 # Fixkosten und wiederkehrende Buchungen
 
-Seit Version 0.10.0 verwaltet Finance wiederkehrende Posten in einer eigenen Seite **Fixkosten**. Aus jeder Regel erzeugt das Add-on automatisch ganz normale Buchungen – ohne externen Dienst, ohne Timer-Prozess und ohne Netzwerkzugriff.
+Seit Version 0.10.0 verwaltet Finance wiederkehrende Posten in einer eigenen Seite **Fixkosten**. Aus jeder Regel erzeugt das Add-on automatisch ganz normale Buchungen – ohne externen Dienst, ohne Timer-Prozess und ohne Netzwerkzugriff. Gehalt gehört seit 0.13.0 nicht mehr hierher, sondern auf die Seite **Monatsgehalt** ([Anleitung](monatsgehalt.md)).
 
 ## Beispiel
 
-Miete 900 € monatlich, Versicherung 120 € jährlich, Gehalt 2.500 € monatlich:
+Miete 900 € monatlich und Versicherung 120 € jährlich:
 
 1. **Konten** → Konto anlegen (falls noch nicht vorhanden).
 2. Optional **Kategorien** → passende Ausgaben-/Einnahmekategorien anlegen.
@@ -13,6 +13,8 @@ Miete 900 € monatlich, Versicherung 120 € jährlich, Gehalt 2.500 € monatl
    - Konto, optional Kategorie und Gegenstelle
    - erstes Fälligkeitsdatum
 4. *Regel anlegen*. Die fälligen Buchungen erscheinen sofort unter **Buchungen** und fließen in Saldo, Budgets und Auswertungen ein.
+
+Für das monatliche Gehalt bitte **Monatsgehalt** verwenden; dort wird der Auszahlungstag festgelegt und die Einnahme automatisch monatlich gebucht.
 
 ## Wann wird gebucht?
 

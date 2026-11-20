@@ -1,0 +1,58 @@
+{% set selected_account = form.account_id | string if form.account_id else '' %}
+{% set selected_category = form.category_id | string if form.category_id else '' %}
+<label>
+  Name
+  <input type="text" name="name" maxlength="200" placeholder="Monatsgehalt"
+         value="{{ form.name or '' }}" required />
+</label>
+<label>
+  Betrag
+  <input type="text" name="amount" inputmode="decimal" placeholder="0,00"
+         value="{{ form.amount or '' }}" required />
+</label>
+<label>
+  Konto
+  <select name="account_id" required>
+    {% for account in accounts %}
+    <option value="{{ account.id }}" {% if selected_account == account.id | string %}selected{% endif %}>
+      {{ account.name }}
+    </option>
+    {% endfor %}
+  </select>
+</label>
+<label>
+  Erste Auszahlung
+  <input type="date" name="start_date" value="{{ form.start_date or today }}" required />
+</label>
+<label>
+  Kategorie
+  <select name="category_id">
+    <option value="">– keine –</option>
+    {% for category in categories %}
+    <option value="{{ category.id }}" {% if selected_category == category.id | string %}selected{% endif %}>
+      {{ category.name }}
+    </option>
+    {% endfor %}
+  </select>
+</label>
+<label>
+  Arbeitgeber
+  <input type="text" name="counterparty" maxlength="200" value="{{ form.counterparty or '' }}" />
+</label>
+<label class="wide">
+  Beschreibung
+  <input type="text" name="description" maxlength="500" value="{{ form.description or '' }}" />
+</label>
+<label class="wide checkbox">
+  <input type="checkbox" name="active" value="1"
+         {% if form.get('active', '1') == '1' %}checked{% endif %} />
+  Aktiv – Gehalt jeden Monat automatisch buchen
+</label>
+<div class="wide actions">
+  <button type="submit">{{ submit_label | default('Gehalt speichern') }}</button>
+</div>
+<p class="wide muted">
+  Der Tag der ersten Auszahlung gilt als monatlicher Auszahlungstag. Fällt er auf einen
+  kürzeren Monat, wird er auf den letzten Tag begrenzt. Bereits erzeugte Buchungen bleiben
+  erhalten, wenn die Regel gelöscht wird.
+</p>

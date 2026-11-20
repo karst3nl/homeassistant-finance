@@ -7,6 +7,7 @@ Ein vollständig lokales Add-on für persönliche Finanzen. Es läuft komplett a
 - Konten und Kategorien anlegen und bearbeiten
 - Einnahmen und Ausgaben manuell erfassen, filtern, bearbeiten und löschen
 - Monatliche und jährliche Fixkosten: Regeln pflegen und fällige Buchungen automatisch erzeugen
+- Monatsgehalt als eigener Bereich – bewusst nicht bei den Fixkosten – mit automatischer Einnahmebuchung
 - Umbuchungen zwischen zwei Konten als zusammenhängendes Buchungspaar
 - Herunterladbare Backups: aktuelle Datenbank direkt speichern oder Kopien verwalten
 - Budgets pro Kategorie und Monat inklusive Fortschrittsanzeige
@@ -20,6 +21,8 @@ Ein vollständig lokales Add-on für persönliche Finanzen. Es läuft komplett a
 Zuerst unter **Konten** ein Konto anlegen (optional unter **Kategorien** eine Ausgabekategorie). Danach kann auf der Übersicht eine Ausgabe oder Einnahme eingetragen werden. Buchungen und Konten lassen sich in der jeweiligen Liste über **Bearbeiten** ändern.
 
 Wiederkehrende Posten wie Miete oder Versicherung werden unter **Fixkosten** als monatliche oder jährliche Regel angelegt. Das Add-on erzeugt die fälligen Buchungen automatisch; pausierte Regeln buchen nichts. Bereits erzeugte Buchungen bleiben erhalten, wenn eine Regel gelöscht wird.
+
+Dein Gehalt erfasst du getrennt davon unter **Monatsgehalt** – dort mit festem monatlichem Auszahlungstag, Betrag und Konto. Es wird als normale Einnahme gebucht und erscheint in Saldo und Auswertungen, aber nicht in der Fixkostenliste.
 
 Unter **Umbuchungen** verschiebst du Guthaben zwischen zwei Konten. Finance legt dafür zwei verknüpfte Buchungen an; der Gesamtsaldo bleibt gleich. Umbuchungen zählen nicht als Einnahme oder Ausgabe und beeinflussen keine Budgets.
 

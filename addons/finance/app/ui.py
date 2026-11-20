@@ -15,6 +15,7 @@ from urllib.parse import parse_qs
 
 import backup
 import recurring
+import salary
 import transfers
 from charts import bar_chart, donut_chart, line_chart
 from db import transaction
@@ -65,6 +66,7 @@ _NAV_PREFIXES = (
     ("ui/transfers", "transfers"),
     ("ui/budgets", "budgets"),
     ("ui/recurring", "recurring"),
+    ("ui/salary", "salary"),
     ("ui/reports", "reports"),
     ("ui/accounts", "accounts"),
     ("ui/categories", "categories"),
@@ -159,6 +161,10 @@ def _all_categories() -> list[dict]:
             "SELECT id, name, type FROM categories ORDER BY name COLLATE NOCASE"
         ).fetchall()
     return [dict(row) for row in rows]
+
+
+def _income_categories() -> list[dict]:
+    return [category for category in _all_categories() if category["type"] == "income"]
 
 
 def _period(request: Request) -> str:
@@ -971,6 +977,134 @@ def delete_recurring(request: Request) -> Response:
     return _redirect(request, "ui/recurring")
 
 
+def _salary_context() -> dict:
+    return {
+        "rules": salary.list_rules(),
+        "accounts": _account_options(),
+        "categories": _income_categories(),
+        "summary": salary.planned_summary(),
+        "today": date.today().isoformat(),
+        "form": {"name": "Monatsgehalt"},
+    }
+
+
+def salary_page(request: Request):
+    return _render(request, "salary.html", _salary_context())
+
+
+def _salary_values(form: dict[str, str]) -> tuple[dict, list[str]]:
+    """Formularwerte einer Gehaltsregel validieren."""
+    errors: list[str] = []
+
+    name = form.get("name", "").strip()
+    if not name:
+        errors.append("Bitte einen Namen angeben.")
+
+    try:
+        amount = parse_cents(form.get("amount", ""))
+    except ValueError:
+        amount = 0
+        errors.append("Bitte einen gültigen Betrag angeben.")
+    if amount <= 0:
+        errors.append("Der Betrag muss größer als 0 sein.")
+
+    account_id = _positive_id(form.get("account_id", ""))
+    if account_id is None:
+        errors.append("Bitte ein Konto auswählen.")
+
+    category_value = form.get("category_id", "")
+    category_id = _positive_id(category_value) if category_value else None
+
+    try:
+        start_date = parse_date(form.get("start_date", ""), "start_date")
+    except HTTPException:
+        start_date = ""
+        errors.append("Bitte ein gültiges Datum für die erste Auszahlung angeben.")
+
+    values = {
+        "name": name,
+        "amount_cents": amount,
+        "account_id": account_id,
+        "category_id": category_id,
+        "start_date": start_date,
+        "counterparty": form.get("counterparty", "").strip(),
+        "description": form.get("description", "").strip(),
+        "active": 1 if form.get("active", "1") == "1" else 0,
+    }
+    return values, errors
+
+
+async def create_salary(request: Request) -> Response:
+    form = await _form(request)
+    values, errors = _salary_values(form)
+    if not errors:
+        try:
+            salary.create_rule(values)
+            salary.generate_due()
+        except salary.SalaryError as exc:
+            errors.append(str(exc))
+
+    if errors:
+        return _render(
+            request,
+            "salary.html",
+            {**_salary_context(), "errors": errors, "form": form},
+            status_code=400,
+        )
+    return _redirect(request, "ui/salary")
+
+
+def _salary_edit_context(rule_id: int, form: dict | None = None) -> dict:
+    rule = salary.get_rule(rule_id)
+    if rule is None:
+        raise HTTPException(status_code=404, detail="Gehaltsregel nicht gefunden")
+    if form is None:
+        form = {
+            **rule,
+            "amount": _amount_input(rule["amount_cents"]),
+            "account_id": str(rule["account_id"]),
+            "category_id": str(rule["category_id"]) if rule["category_id"] else "",
+            "active": "1" if rule["active"] else "0",
+        }
+    return {**_salary_context(), "rule": rule, "form": form}
+
+
+def edit_salary_page(request: Request):
+    rule_id = path_id(request.path_params["rule_id"])
+    return _render(request, "salary_edit.html", _salary_edit_context(rule_id))
+
+
+async def update_salary(request: Request) -> Response:
+    rule_id = path_id(request.path_params["rule_id"])
+    form = await _form(request)
+    values, errors = _salary_values(form)
+    if salary.get_rule(rule_id) is None:
+        raise HTTPException(status_code=404, detail="Gehaltsregel nicht gefunden")
+    if not errors:
+        try:
+            salary.update_rule(rule_id, values)
+            salary.generate_due()
+        except salary.SalaryError as exc:
+            errors.append(str(exc))
+
+    if errors:
+        return _render(
+            request,
+            "salary_edit.html",
+            {**_salary_edit_context(rule_id, form), "errors": errors},
+            status_code=400,
+        )
+    return _redirect(request, "ui/salary")
+
+
+def delete_salary(request: Request) -> Response:
+    try:
+        salary.delete_rule(path_id(request.path_params["rule_id"]))
+    except salary.SalaryError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return _redirect(request, "ui/salary")
+
+
 def _backups_context() -> dict:
     return {
         "backups": [
@@ -1061,6 +1195,11 @@ routes = [
     Route("/ui/recurring/{rule_id}/edit", edit_recurring_page, methods=["GET"]),
     Route("/ui/recurring/{rule_id}", update_recurring, methods=["POST"]),
     Route("/ui/recurring/{rule_id}/delete", delete_recurring, methods=["POST"]),
+    Route("/ui/salary", salary_page, methods=["GET"]),
+    Route("/ui/salary", create_salary, methods=["POST"]),
+    Route("/ui/salary/{rule_id}/edit", edit_salary_page, methods=["GET"]),
+    Route("/ui/salary/{rule_id}", update_salary, methods=["POST"]),
+    Route("/ui/salary/{rule_id}/delete", delete_salary, methods=["POST"]),
     Route("/ui/backups", backups_page, methods=["GET"]),
     Route("/ui/backups", create_backup, methods=["POST"]),
     Route("/ui/backups/download", download_current_backup, methods=["GET"]),

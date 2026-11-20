@@ -66,6 +66,7 @@
         <td data-label="Datum" class="mono">{{ entry.booking_date }}</td>
         <td data-label="Gegenstelle">
           {{ entry.counterparty or entry.description or '–' }}
+          {% if entry.source == 'salary' %}<small>Monatsgehalt</small>{% endif %}
           {% if entry.transfer_id %}<small>Umbuchung</small>{% endif %}
         </td>
         <td data-label="Konto">{{ entry.account_name }}</td>

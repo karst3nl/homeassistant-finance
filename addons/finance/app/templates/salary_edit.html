@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Monatsgehalt bearbeiten · Finanzen{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="section-head">
+    <h2>Gehalt bearbeiten: {{ rule.name }}</h2>
+    <a href="ui/salary">Zurück zum Monatsgehalt</a>
+  </div>
+  <p class="muted">
+    Bereits erzeugte Buchungen werden nicht verändert. Änderst du das Datum der ersten
+    Auszahlung, werden fällige Termine ab diesem Datum nachgebucht.
+  </p>
+  <form method="post" action="ui/salary/{{ rule.id }}" class="form-grid">
+    {% set submit_label = 'Gehalt speichern' %}
+    {% include "_salary_form.html" %}
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Monatsgehalt · Finanzen{% endblock %}
+{% block content %}
+<section class="cards">
+  <article class="card">
+    <h2>Gehalt pro Monat</h2>
+    <p class="value positive">{{ summary.monthly_cents | cents }}</p>
+  </article>
+  <article class="card">
+    <h2>Regeln</h2>
+    <p class="value">{{ summary.rule_count }}</p>
+  </article>
+  <article class="card">
+    <h2>Nächste Auszahlung</h2>
+    <p class="value mono">{{ summary.next_due or '–' }}</p>
+  </article>
+</section>
+
+<section class="card">
+  <div class="section-head">
+    <h2>Monatsgehalt</h2>
+    <a href="ui/recurring">Zu den Fixkosten</a>
+  </div>
+  <p class="muted">
+    Dein Gehalt wird hier erfasst – nicht bei den Fixkosten. Es wird jeden Monat automatisch
+    als Einnahme gebucht und erscheint ganz normal in Saldo und Auswertungen.
+  </p>
+  {% if rules %}
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th><th class="right">Betrag</th><th>Auszahlungstag</th>
+        <th>Nächste Buchung</th><th>Konto</th><th>Kategorie</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rule in rules %}
+      <tr>
+        <td data-label="Name">
+          {{ rule.name }}
+          {% if not rule.active %}<small>pausiert</small>{% endif %}
+          {% if rule.counterparty %}<small>{{ rule.counterparty }}</small>{% endif %}
+        </td>
+        <td data-label="Betrag" class="right mono positive">{{ rule.amount_cents | cents }}</td>
+        <td data-label="Auszahlungstag" class="mono">{{ rule.start_date[-2:] }}.</td>
+        <td data-label="Nächste Buchung" class="mono">{{ rule.next_due }}</td>
+        <td data-label="Konto">{{ rule.account_name }}</td>
+        <td data-label="Kategorie">{{ rule.category_name or '–' }}</td>
+        <td class="right actions-cell">
+          <div class="table-actions">
+            <a href="ui/salary/{{ rule.id }}/edit" title="Gehalt bearbeiten">Bearbeiten</a>
+            <form method="post" action="ui/salary/{{ rule.id }}/delete" class="inline">
+              <button type="submit" class="danger" title="Gehalt löschen">×</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Noch kein Monatsgehalt hinterlegt.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>{% if rules %}Weitere Gehaltsregel{% else %}Monatsgehalt einrichten{% endif %}</h2>
+  {% if not accounts %}
+  <p>Für das Gehalt muss zuerst ein <a href="ui/accounts">Konto angelegt</a> werden.</p>
+  {% else %}
+  <form method="post" action="ui/salary" class="form-grid">
+    {% set submit_label = 'Gehalt anlegen' %}
+    {% include "_salary_form.html" %}
+  </form>
+  {% endif %}
+  <p class="muted">
+    Für die Kategorie bitte eine Einnahme-Kategorie wählen oder
+    <a href="ui/categories">neue Kategorie anlegen</a>.
+  </p>
+</section>
+{% endblock %}

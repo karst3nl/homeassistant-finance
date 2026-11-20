@@ -26,11 +26,15 @@ Die Währung wird pro Konto beim Anlegen gespeichert (Standard `EUR`). Die Anzei
 
 ## Warum lässt sich ein Konto mit Buchungen nicht löschen?
 
-Das würde die Buchungen verwaist lassen. Konto und Buchungen müssen zuerst konsistent aufgeräumt werden; dasselbe gilt für Fixkosten-Regeln und Umbuchungen, die das Konto verwenden. Die Oberfläche zeigt dann einen entsprechenden Hinweis.
+Das würde die Buchungen verwaist lassen. Konto und Buchungen müssen zuerst konsistent aufgeräumt werden; dasselbe gilt für Fixkosten-Regeln, Gehaltsregeln und Umbuchungen, die das Konto verwenden. Die Oberfläche zeigt dann einen entsprechenden Hinweis.
 
 ## Wie funktionieren die automatischen Buchungen bei Fixkosten?
 
 Die Regeln unter **Fixkosten** enthalten nur Name, Betrag, Intervall und Fälligkeitsdatum. Beim Start des Add-ons und bei jedem Zugriff prüft Finance, welche Termine fällig sind, und legt daraus ganz normale Buchungen an. Ein eindeutiger Schlüssel verhindert Duplikate. Details: [fixkosten.md](fixkosten.md).
+
+## Warum steht mein Gehalt nicht bei den Fixkosten?
+
+Weil es einen eigenen Menüpunkt **Monatsgehalt** gibt. Dort legst du eine monatliche Einnahme mit festem Auszahlungstag an; sie wird automatisch gebucht und zählt normal zu Einnahmen und Auswertungen, erscheint aber nicht in der Fixkostenliste. Details: [monatsgehalt.md](monatsgehalt.md).
 
 ## Wie funktionieren Umbuchungen zwischen Konten?
 

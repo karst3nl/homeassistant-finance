@@ -343,12 +343,13 @@ def test_migration_erhaelt_bestehende_daten(db_path: Path) -> None:
     init_db(db_path)
 
     with connect(db_path) as connection:
-        assert connection.execute("PRAGMA user_version").fetchone()[0] == 3
+        assert connection.execute("PRAGMA user_version").fetchone()[0] == 4
         tables = {
             row["name"]
             for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
         }
         assert "transfers" in tables
+        assert "salary_rules" in tables
         row = connection.execute("SELECT * FROM transactions WHERE id = 1").fetchone()
         assert row["amount_cents"] == -123
         assert row["transfer_id"] is None

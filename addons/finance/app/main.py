@@ -13,6 +13,7 @@ from pathlib import Path
 from api import routes as api_routes
 from db import init_db
 from recurring import generate_due
+from salary import generate_due as generate_salary_due
 from starlette.applications import Starlette
 from starlette.datastructures import MutableHeaders
 from starlette.middleware import Middleware
@@ -40,6 +41,7 @@ async def lifespan(application: Starlette) -> AsyncIterator[None]:
     """Datenbank beim Start öffnen, Migrationen anwenden und Fälligkeiten buchen."""
     init_db()
     generate_due()
+    generate_salary_due()
     yield
 
 
@@ -93,8 +95,8 @@ class RequestLimitMiddleware:
         await self.app(scope, receive, send)
 
 
-class RecurringMiddleware:
-    """Fällige Fixkosten beim Zugriff erzeugen.
+class DueBookingMiddleware:
+    """Fällige Fixkosten und Gehälter beim Zugriff erzeugen.
 
     Der Supervisor ruft `/healthz` regelmäßig auf; so entstehen Buchungen auch
     dann, wenn die Oberfläche über Wochen nicht geöffnet wird. Statische Dateien
@@ -107,6 +109,7 @@ class RecurringMiddleware:
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] == "http" and not scope.get("path", "").startswith("/static/"):
             generate_due()
+            generate_salary_due()
         await self.app(scope, receive, send)
 
 
@@ -142,7 +145,7 @@ app = Starlette(
         Middleware(SupervisorOnlyMiddleware),
         Middleware(RequestLimitMiddleware),
         Middleware(SecurityHeadersMiddleware),
-        Middleware(RecurringMiddleware),
+        Middleware(DueBookingMiddleware),
     ],
     lifespan=lifespan,
 )

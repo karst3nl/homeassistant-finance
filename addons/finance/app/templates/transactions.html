@@ -38,6 +38,7 @@
         <td data-label="Gegenstelle">
           {{ entry.counterparty or entry.description or '–' }}
           {% if entry.description and entry.counterparty %}<small>{{ entry.description }}</small>{% endif %}
+          {% if entry.source == 'salary' %}<small>Monatsgehalt</small>{% endif %}
           {% if entry.source == 'recurring' %}<small>automatisch (Fixkosten)</small>{% endif %}
           {% if entry.transfer_id %}<small>Umbuchung</small>{% endif %}
         </td>

@@ -44,6 +44,9 @@ def test_tabellen_haben_beschriftungen_fuer_die_kartenansicht(client: TestClient
     category = client.post(
         "/api/categories", json={"name": "Lebensmittel", "type": "expense"}
     ).json()
+    income_category = client.post(
+        "/api/categories", json={"name": "Gehalt", "type": "income"}
+    ).json()
     client.post(
         "/api/transactions",
         json={
@@ -77,6 +80,16 @@ def test_tabellen_haben_beschriftungen_fuer_die_kartenansicht(client: TestClient
             "amount_cents": 5000,
         },
     )
+    client.post(
+        "/api/salary",
+        json={
+            "name": "Monatsgehalt",
+            "amount_cents": 250000,
+            "account_id": account["id"],
+            "category_id": income_category["id"],
+            "start_date": "2026-11-01",
+        },
+    )
     client.post("/ui/backups")
 
     paths = (
@@ -86,6 +99,7 @@ def test_tabellen_haben_beschriftungen_fuer_die_kartenansicht(client: TestClient
         "/ui/categories",
         "/ui/budgets",
         "/ui/recurring",
+        "/ui/salary",
         "/ui/transfers",
         "/ui/reports",
         "/ui/backups",

@@ -2,6 +2,20 @@
 
 Alle nennenswerten Änderungen werden hier dokumentiert. Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionierung an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.13.0] - 2026-11-20
+
+### Hinzugefügt
+
+- Neuer Menüpunkt **Monatsgehalt**: Gehalt wird bewusst getrennt von den Fixkosten erfasst
+- Eigene Gehaltsregeln mit Betrag, Konto, Einnahme-Kategorie, Auszahlungstag und Arbeitgeber
+- Automatische monatliche Einnahmebuchungen mit `source = 'salary'` und Idempotenz pro Monat
+- Eigene API `/api/salary`, Migration 004, neue Seite inklusive Bearbeiten/Löschen und Doku
+
+### Geändert
+
+- Fixkosten-Doku verweist für Gehalt auf die neue Anleitung; Buchungen zeigen „Monatsgehalt“ statt „automatisch (Fixkosten)“
+- Gehalts- und Fixkostenbuchungen werden beim Start und bei jedem Zugriff gleichermaßen geprüft
+
 ## [0.12.1] - 2026-11-20
 
 ### Hinzugefügt

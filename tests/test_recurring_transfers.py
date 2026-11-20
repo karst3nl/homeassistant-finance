@@ -145,6 +145,7 @@ def test_umbuchungsregel_wird_validiert(client: TestClient) -> None:
         {**valid, "to_account_id": 999},
         {**valid, "amount_cents": 0},
         {**valid, "direction": "unknown"},
+        {**valid, "direction": "expense"},
     )
     for payload in invalid:
         response = client.post("/api/recurring", json=payload)
@@ -186,6 +187,12 @@ def test_umbuchungsregel_ueber_ui(client: TestClient) -> None:
     assert "Giro → Sparkonto" in page
     assert "50,00 EUR" in page
 
+    transfers_page = client.get("/ui/transfers").text
+    assert "Monatlich sparen" in transfers_page
+    assert "automatisch (Fixkosten): Sparrate" in transfers_page
+    assert "Giro" in transfers_page
+    assert "Sparkonto" in transfers_page
+
     edit = client.get("/ui/recurring/1/edit").text
     assert 'name="to_account_id"' in edit
     assert 'value="2" selected' in edit
@@ -201,6 +208,31 @@ def test_umbuchungsregel_ueber_ui(client: TestClient) -> None:
     assert "Noch keine Regeln vorhanden." in client.get("/ui/recurring").text
     # Bereits erzeugte Umbuchungen bleiben nach dem Löschen der Regel erhalten.
     assert len(client.get("/api/transfers").json()) == 1
+
+
+def test_zielkonto_ohne_umbuchung_wird_abgelehnt(client: TestClient) -> None:
+    source = create_account(client, "Giro")
+    target = create_account(client, "Sparkonto")
+
+    form = transfer_payload(source["id"], target["id"], direction="expense")
+    response = client.post(
+        "/ui/recurring",
+        data={
+            "name": form["name"],
+            "direction": form["direction"],
+            "interval": form["interval"],
+            "amount": "50,00",
+            "account_id": str(source["id"]),
+            "to_account_id": str(target["id"]),
+            "start_date": form["start_date"],
+            "description": form["description"],
+            "active": "1",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 400
+    assert "Zielkonto darf nur bei der Art" in response.text
+    assert client.get("/api/transactions").json() == []
 
 
 def test_migration_erhaelt_bestehende_regeln_und_umbuchungen(db_path: Path) -> None:

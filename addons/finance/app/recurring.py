@@ -62,6 +62,9 @@ def _check_references(connection, values: dict) -> None:
             raise RecurringError("Bei einer Umbuchung darf keine Kategorie gewählt werden.")
         return
 
+    if values.get("to_account_id") is not None:
+        raise RecurringError("Ein Zielkonto darf nur bei der Art „Umbuchung“ angegeben werden.")
+
     category_id = values.get("category_id")
     if category_id is not None:
         row = connection.execute(

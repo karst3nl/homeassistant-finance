@@ -889,6 +889,8 @@ def _recurring_values(form: dict[str, str]) -> tuple[dict, list[str]]:
             errors.append("Bitte ein Zielkonto auswählen.")
         elif to_account_id == account_id:
             errors.append("Quell- und Zielkonto müssen unterschiedlich sein.")
+    elif to_account_id is not None:
+        errors.append("Ein Zielkonto darf nur bei der Art „Umbuchung“ angegeben werden.")
 
     category_value = form.get("category_id", "")
     category_id = (

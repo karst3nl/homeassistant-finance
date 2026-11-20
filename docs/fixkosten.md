@@ -24,7 +24,11 @@ Seit 0.14.0 steht bei **Art** zusätzlich **Umbuchung** zur Verfügung. Damit le
 2. Unter **Konto / Quellkonto** das abgebende Konto und unter **Zielkonto** das empfangende Konto auswählen (zwei verschiedene Konten).
 3. Betrag, Intervall und erstes Fälligkeitsdatum wie gewohnt angeben. Eine Kategorie wird bei Umbuchungen nicht benötigt.
 
+**Wichtig:** Das Zielkonto wird nur bei **Art = Umbuchung** verwendet. Bis 0.15.0 wurde ein versehentlich bei Ausgabe/Einnahme gesetztes Zielkonto still ignoriert; seit 0.15.1 bricht das Formular mit einem Hinweis ab. Prüfe bei einer vorhandenen Regel in der Fixkostenliste, dass **Umbuchung** und `Quelle → Ziel` stehen.
+
 Pro Fälligkeit entsteht ein ganz normales Umbuchungspaar: Eine negative Buchung auf dem Quellkonto und eine positive auf dem Zielkonto. Der Gesamtsaldo bleibt gleich; die Buchungen zählen nicht als Einnahme oder Ausgabe und erscheinen unter **Buchungen** mit „Umbuchung“. Details: [umbuchungen.md](umbuchungen.md).
+
+Falls vor dem Update schon eine einfache Ausgabe gebucht wurde: Regel auf **Umbuchung** korrigieren, die falsche Ausgabe unter **Buchungen** löschen und den Betrag einmalig unter **Umbuchungen** anlegen. Bereits gebuchte Termine werden nicht automatisch umgewandelt.
 
 ## Wann wird gebucht?
 

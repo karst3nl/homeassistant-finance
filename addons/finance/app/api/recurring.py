@@ -70,6 +70,8 @@ def _values(payload: dict, old: dict | None = None) -> dict:
         else:
             raise bad("'to_account_id' ist erforderlich")
     else:
+        if payload.get("to_account_id") is not None:
+            raise bad("'to_account_id' darf nur bei direction='transfer' angegeben werden")
         to_account_id = None
 
     return {

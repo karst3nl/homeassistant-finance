@@ -4,7 +4,7 @@
 
 Ein schlankes, vollständig lokales Home-Assistant-Add-on für persönliche Finanzen. Kein Cloud-Konto, keine Bankverbindung, keine zusätzlichen Add-ons – nur ein Webserver-Prozess, eine SQLite-Datei und eine Oberfläche in Home Assistant.
 
-> **Status:** Version **0.9.0** ist veröffentlicht und auf dem Raspberry Pi 4 getestet. **0.15.0** ergänzt „Frei verfügbares Geld“ auf der Übersicht, außerdem wiederkehrende Umbuchungen, ein eigenes Monatsgehalt, Bearbeitung, Backups und eine mobile Oberfläche. Plan: [ROADMAP.md](ROADMAP.md).
+> **Status:** Version **0.9.0** ist veröffentlicht und auf dem Raspberry Pi 4 getestet. **0.15.1** zeigt „Frei verfügbares Geld“ auf der Übersicht und verhindert, dass ein Zielkonto versehentlich als einfache Ausgabe gespeichert wird. Plan: [ROADMAP.md](ROADMAP.md).
 
 ## Umfang in v1
 
@@ -91,6 +91,7 @@ Die Repository-URL `https://github.com/karst3nl/homeassistant-finance` steht in 
 - `0.13.0`: Eigener Menüpunkt **Monatsgehalt** mit automatischer Einnahmebuchung.
 - `0.14.0`: Fixkostenregeln können als **Umbuchung** zwischen zwei Konten angelegt werden.
 - `0.15.0`: Die Übersicht zeigt oben **frei verfügbares Geld** als Planungswert.
+- `0.15.1`: Ein Zielkonto ohne die Art **Umbuchung** wird abgelehnt statt ignoriert.
 
 Ein Release publiziert `.github/workflows/release.yaml`: Es baut und signiert die Images für `aarch64`/`amd64`, pusht die Version und `latest` nach GHCR und veröffentlicht das Multi-Arch-Manifest. Das GHCR-Paket ist öffentlich. Das Image wird ausschließlich über das Custom Repository installiert; ein lokaler Build ist nicht nötig.
 

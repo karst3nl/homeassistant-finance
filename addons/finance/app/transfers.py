@@ -172,10 +172,12 @@ def delete_transfer(transfer_id: int) -> None:
 def get_transfer(transfer_id: int) -> dict | None:
     with transaction() as connection:
         row = connection.execute(
-            """SELECT t.*, f.name AS from_account_name, to_a.name AS to_account_name
+            """SELECT t.*, f.name AS from_account_name, to_a.name AS to_account_name,
+                      r.name AS recurring_rule_name
                FROM transfers t
                JOIN accounts f ON f.id = t.from_account_id
                JOIN accounts to_a ON to_a.id = t.to_account_id
+               LEFT JOIN recurring_rules r ON r.id = t.recurring_rule_id
                WHERE t.id = ?""",
             (transfer_id,),
         ).fetchone()
@@ -185,10 +187,12 @@ def get_transfer(transfer_id: int) -> dict | None:
 def list_transfers() -> list[dict]:
     with transaction() as connection:
         rows = connection.execute(
-            """SELECT t.*, f.name AS from_account_name, to_a.name AS to_account_name
+            """SELECT t.*, f.name AS from_account_name, to_a.name AS to_account_name,
+                      r.name AS recurring_rule_name
                FROM transfers t
                JOIN accounts f ON f.id = t.from_account_id
                JOIN accounts to_a ON to_a.id = t.to_account_id
+               LEFT JOIN recurring_rules r ON r.id = t.recurring_rule_id
                ORDER BY t.booking_date DESC, t.id DESC"""
         ).fetchall()
     return [dict(row) for row in rows]

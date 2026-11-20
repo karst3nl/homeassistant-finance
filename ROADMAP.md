@@ -1,7 +1,7 @@
 # Roadmap: Home-Assistant-Finance
 
 **Stand:** 2026-11-20  
-**Status:** Phase 0–5 abgeschlossen (0.9.0 veröffentlicht und auf dem Pi 4 getestet); Phase 6 ergänzt Umbuchungen (0.11.0), Phase 7 herunterladbare Backups (0.12.0), Phase 8 mobile/touchfreundliche Oberfläche (0.12.1), Phase 9 das Monatsgehalt als eigenen Bereich (0.13.0), Phase 10 wiederkehrende Umbuchungen in den Fixkosten (0.14.0), Phase 11 die Kennzahl „Frei verfügbares Geld“ (0.15.0)  
+**Status:** Phase 0–5 abgeschlossen (0.9.0 veröffentlicht und auf dem Pi 4 getestet); Phase 6 ergänzt Umbuchungen (0.11.0), Phase 7 herunterladbare Backups (0.12.0), Phase 8 mobile/touchfreundliche Oberfläche (0.12.1), Phase 9 das Monatsgehalt als eigenen Bereich (0.13.0), Phase 10 wiederkehrende Umbuchungen in den Fixkosten (0.14.0), Phase 11 die Kennzahl „Frei verfügbares Geld“ (0.15.0), Patch 0.15.1 härtet die Zielkonto-Validierung ab  
 **Repo:** GitHub, Custom Repository für Home Assistant
 
 ---

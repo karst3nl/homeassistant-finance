@@ -10,6 +10,12 @@
     {{ transfer.from_account_name }} → {{ transfer.to_account_name }}:
     {{ transfer.amount_cents | cents }} am {{ transfer.booking_date }}
   </p>
+  {% if transfer.recurring_rule_id %}
+  <p class="muted">
+    Automatisch aus der Fixkostenregel {% if transfer.recurring_rule_name %}„{{ transfer.recurring_rule_name }}“{% else %}der Fixkosten{% endif %} erzeugt.
+    Änderungen an der Regel wirken nicht auf bereits erzeugte Umbuchungen.
+  </p>
+  {% endif %}
   <form method="post" action="ui/transfers/{{ transfer.id }}" class="form-grid">
     {% set submit_label = 'Umbuchung speichern' %}
     {% include "_transfer_form.html" %}

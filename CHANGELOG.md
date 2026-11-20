@@ -2,6 +2,15 @@
 
 Alle nennenswerten Änderungen werden hier dokumentiert. Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionierung an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.15.1] - 2026-11-20
+
+### Behoben
+
+- Ein bei einer Ausgabe/Einnahme versehentlich gesetztes Zielkonto wird nicht mehr still ignoriert
+- Formular und API lehnen die Kombination „Zielkonto ohne Art Umbuchung“ jetzt mit einem klaren Hinweis ab
+- Automatische Umbuchungen erscheinen zuverlässig unter **Umbuchungen**, sofern die Regel als **Umbuchung** gespeichert wurde
+- Der Reiter **Umbuchungen** kennzeichnet automatische Einträge jetzt mit „automatisch (Fixkosten)“ und dem Regelnamen
+
 ## [0.15.0] - 2026-11-20
 
 ### Hinzugefügt

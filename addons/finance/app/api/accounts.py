@@ -98,8 +98,8 @@ def _delete(request: Request) -> Response:
         raise HTTPException(
             status_code=409,
             detail=(
-                "Konto kann nicht gelöscht werden, solange Buchungen oder Fixkosten-Regeln "
-                "existieren"
+                "Konto kann nicht gelöscht werden, solange Buchungen, Fixkosten-Regeln "
+                "oder Umbuchungen existieren"
             ),
         ) from exc
     if cursor.rowcount == 0:

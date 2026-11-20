@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Umbuchungen · Finanzen{% endblock %}
+{% block content %}
+<section class="card">
+  <h2>Umbuchungen</h2>
+  {% if transfers %}
+  <table>
+    <thead>
+      <tr>
+        <th>Datum</th><th>Von</th><th>Nach</th><th class="right">Betrag</th>
+        <th>Beschreibung</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for transfer in transfers %}
+      <tr>
+        <td class="mono">{{ transfer.booking_date }}</td>
+        <td>{{ transfer.from_account_name }}</td>
+        <td>{{ transfer.to_account_name }}</td>
+        <td class="right mono">{{ transfer.amount_cents | cents }}</td>
+        <td>{{ transfer.description or '–' }}</td>
+        <td class="right">
+          <div class="table-actions">
+            <a href="ui/transfers/{{ transfer.id }}/edit" title="Umbuchung bearbeiten">Bearbeiten</a>
+            <form method="post" action="ui/transfers/{{ transfer.id }}/delete" class="inline">
+              <button type="submit" class="danger" title="Umbuchung löschen">×</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Noch keine Umbuchungen vorhanden.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Neue Umbuchung</h2>
+  {% if accounts|length < 2 %}
+  <p>Für eine Umbuchung müssen mindestens zwei <a href="ui/accounts">Konten angelegt</a> werden.</p>
+  {% else %}
+  <form method="post" action="ui/transfers" class="form-grid">
+    {% set submit_label = 'Umbuchung anlegen' %}
+    {% include "_transfer_form.html" %}
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

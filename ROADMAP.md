@@ -1,7 +1,7 @@
 # Roadmap: Home-Assistant-Finance
 
 **Stand:** 2026-11-20  
-**Status:** Phase 0–4 abgeschlossen (0.9.0 veröffentlicht und auf dem Pi 4 getestet); Phase 5 begonnen mit Bearbeitung und Fixkosten (0.10.0)  
+**Status:** Phase 0–5 abgeschlossen (0.9.0 veröffentlicht und auf dem Pi 4 getestet); Phase 6 ergänzt Umbuchungen zwischen Konten (0.11.0)  
 **Repo:** GitHub, Custom Repository für Home Assistant
 
 ---
@@ -15,6 +15,7 @@
 | Rückgabe an HA | **Keine – reine UI** | Kein `homeassistant_api`, keine Sensoren, kein MQTT, kein `services:` |
 | Dokumentation | Diese Datei | Roadmap liegt im Repo-Root und wird mit jedem Release aktualisiert |
 | Wiederkehrende Buchungen | **Eigene Fixkosten-Seite + automatische Buchungen** (ab 0.10.0) | Regeln werden manuell gepflegt, das Add-on erzeugt fällige Buchungen lokal; keine Bankabfrage |
+| Umbuchungen | **Eigene Seite + verknüpftes Buchungspaar** (ab 0.11.0) | Zwei Buchungen mit `transfer_id`, Netto-Saldo 0; aus Einnahme/Ausgabe und Budgets ausgeschlossen |
 
 > **Begriffsklärung:** „Reine UI" bedeutet: Es entstehen keine HA-Entitäten und keine Automatisierungsdaten. Die Oberfläche kommuniziert intern weiterhin über HTTP-Endpunkte mit dem Backend im selben Container – das ist Technik innerhalb des Add-ons, keine HA-Integration.
 
@@ -36,6 +37,7 @@ Ein vollständig lokales, quelloffenes Add-on zur Verwaltung persönlicher Finan
 | v1-Scope | Konten, Kategorien, Transaktionen (manuell), Budgets, Auswertungen |
 | Bewusst später | CSV-Import, FinTS/HBCI, Belege, Sparziele, Sensoren, Multi-User |
 | Nach v1 (0.10.0) | Bearbeitung von Konten/Buchungen, Fixkosten mit automatischer Buchung |
+| Nach v1 (0.11.0) | Umbuchungen zwischen Konten als zusammenhängendes Paar |
 
 **Ressourcenziele (auf dem Pi 4 messbar):** Image < 80 MB · RAM < 80 MB · Start < 5 s · CPU im Leerlauf ~0 %.
 
@@ -89,11 +91,12 @@ addons/
       stats.py, reports.py       # Dashboard-Daten, Auswertungen
       charts.py                  # serverseitige SVG-Charts
       recurring.py               # Fixkosten-Regeln, Termine, Buchungserzeugung
-      migrations/001_initial.sql, 002_recurring.sql
-      api/                       # accounts, categories, transactions, budgets, recurring, stats
+      transfers.py               # Umbuchungen und verknüpfte Buchungen
+      migrations/001_initial.sql, 002_recurring.sql, 003_transfers.sql
+      api/                       # accounts, categories, transactions, transfers, budgets, recurring, stats
       templates/, static/        # Jinja2-Seiten und CSS ohne JS/CDN
 docs/
-  installation.md, backup.md, datenschutz.md, faq.md, fixkosten.md, entwicklung.md, performance.md
+  installation.md, backup.md, datenschutz.md, faq.md, fixkosten.md, umbuchungen.md, entwicklung.md, performance.md
 scripts/
   validate_config.py, bench.py   # Konfigurationscheck und Performance-Messung
 tests/
@@ -122,6 +125,7 @@ tests/
 - Migrationen als nummerierte SQL-Dateien, Version in `settings` oder `PRAGMA user_version`.
 - `source` und `created_at` von Anfang an mitdenken, damit ein späterer CSV-Import ohne Schema-Bruch ergänzt werden kann.
 - Migration 002 ergänzt Fixkosten-Regeln und die Herkunft automatischer Buchungen. Ein eindeutiger Index auf (`recurring_rule_id`, `recurring_period`) verhindert Doppelbuchungen.
+- Migration 003 ergänzt `transfers` und `transactions.transfer_id`. Ein eindeutiger Index auf (`transfer_id`, `account_id`) verhindert halbe oder doppelte Umbuchungspaare.
 
 ---
 
@@ -129,7 +133,7 @@ tests/
 
 Die Reihenfolge ist absichtlich: erst Datenkern, dann UI. Eine hübsche Oberfläche über einer unklaren Datenbank ist der häufigste Grund für spätere Rewrites.
 
-**Fortschritt:** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ (UI bewusst ohne JavaScript/HTMX umgesetzt) · Phase 3 ✅ · Phase 4 ✅ (0.9.0 veröffentlicht, Pi-4-Test bestanden) · Phase 5 🔄 (Bearbeitung und Fixkosten in 0.10.0).
+**Fortschritt:** Phase 0 ✅ · Phase 1 ✅ · Phase 2 ✅ (UI bewusst ohne JavaScript/HTMX umgesetzt) · Phase 3 ✅ · Phase 4 ✅ (0.9.0 veröffentlicht, Pi-4-Test bestanden) · Phase 5 ✅ (0.10.1) · Phase 6 ✅ (Umbuchungen in 0.11.0).
 
 | Phase | Inhalt | Meilenstein / Definition of Done | ca. Aufwand* |
 |---|---|---|---|
@@ -138,8 +142,9 @@ Die Reihenfolge ist absichtlich: erst Datenkern, dann UI. Eine hübsche Oberflä
 | **2 – UI** | Dashboard, Buchungsliste mit Filter/Suche, Formular für manuelle Erfassung, Kategorien- und Budget-Pflege, Einstellungen, HA-Theme/Dark Mode | Komplette Bedienung rein über die Oberfläche möglich, kein curl nötig | 4–6 d |
 | **3 – Auswertungen** | Monatsvergleich, Kategorie-Charts als SVG, Budget-Fortschritt, Saldo-Verlauf | Kennzahlen stimmen mit den Rohdaten überein (Gegenprobe per Test) | 2–3 d |
 | **4 – Härtung & Veröffentlichung** | Security-Review ✅, Limits/Header/Snapshot ✅, de/en-Übersetzungen ✅, Docs ✅, Release-CI ✅, GHCR public ✅, Pi-4-Smoketest ✅ | 0.9.0 installierbar via Custom Repository | 2–4 d |
-| **5 – Bearbeitung & Fixkosten** | Konten/Buchungen bearbeiten ✅, Fixkosten-Seite mit automatischer Buchung ✅, Migration 002 ✅, Doku ✅ | 0.10.0 veröffentlicht, Fixkosten auf dem Pi 4 geprüft | 1–2 d |
-| **6 – Optional (später)** | CSV-Import mit Mapping/Dedup, FinTS/HBCI, Belege, Sparziele, HA-Sensoren, Multi-User | Nur nach Feedback der ersten Nutzer | offen |
+| **5 – Bearbeitung & Fixkosten** | Konten/Buchungen bearbeiten ✅, Fixkosten-Seite mit automatischer Buchung ✅, Migration 002 ✅, Doku ✅ | 0.10.1 veröffentlicht, Fixkosten auf dem Pi 4 geprüft | 1–2 d |
+| **6 – Umbuchungen** | Umbuchungs-Seite ✅, zwei verknüpfte Buchungen ✅, Migration 003 ✅, Stats/Reports bereinigt ✅, Doku ✅ | 0.11.0 veröffentlicht, Umbuchungen auf dem Pi 4 geprüft | 1–2 d |
+| **7 – Optional (später)** | CSV-Import mit Mapping/Dedup, FinTS/HBCI, Belege, Sparziele, HA-Sensoren, Multi-User | Nur nach Feedback der ersten Nutzer | offen |
 
 \* Grobe Schätzungen für eine Person, keine Zusage.
 
@@ -230,4 +235,4 @@ Repo-README mit My-HA-Badge · Add-on-README im Store · `docs/installation.md` 
 - Bankabruf via FinTS/HBCI – nur mit expliziter Freigabe, nie mit Zugangsdaten in der App-DB.
 - HA-Sensoren – falls doch gewünscht, über Supervisor-Proxy statt MQTT.
 - Multi-User / Rechte über `X-Remote-User-Id` – aktuell sieht jeder Admin dieselben Daten.
-- Belege, Sparziele, Export. Wiederkehrende Buchungen sind seit 0.10.0 umgesetzt (siehe [docs/fixkosten.md](docs/fixkosten.md)).
+- Belege, Sparziele, Export. Wiederkehrende Buchungen sind seit 0.10.0 umgesetzt (siehe [docs/fixkosten.md](docs/fixkosten.md)), Umbuchungen seit 0.11.0 (siehe [docs/umbuchungen.md](docs/umbuchungen.md)).

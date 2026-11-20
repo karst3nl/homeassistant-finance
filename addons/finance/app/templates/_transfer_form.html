@@ -1,0 +1,45 @@
+{% set selected_from = form.from_account_id | string if form.from_account_id else '' %}
+{% set selected_to = form.to_account_id | string if form.to_account_id else '' %}
+<label>
+  Datum
+  <input type="date" name="booking_date" value="{{ form.booking_date or today }}" required />
+</label>
+<label>
+  Von Konto
+  <select name="from_account_id" required>
+    <option value="">– wählen –</option>
+    {% for account in accounts %}
+    <option value="{{ account.id }}" {% if selected_from == account.id | string %}selected{% endif %}>
+      {{ account.name }}
+    </option>
+    {% endfor %}
+  </select>
+</label>
+<label>
+  Nach Konto
+  <select name="to_account_id" required>
+    <option value="">– wählen –</option>
+    {% for account in accounts %}
+    <option value="{{ account.id }}" {% if selected_to == account.id | string %}selected{% endif %}>
+      {{ account.name }}
+    </option>
+    {% endfor %}
+  </select>
+</label>
+<label>
+  Betrag
+  <input type="text" name="amount" inputmode="decimal" placeholder="0,00"
+         value="{{ form.amount or '' }}" required />
+</label>
+<label class="wide">
+  Beschreibung
+  <input type="text" name="description" maxlength="500" value="{{ form.description or '' }}" />
+</label>
+<div class="wide actions">
+  <button type="submit">{{ submit_label | default('Umbuchung speichern') }}</button>
+</div>
+<p class="wide muted">
+  Es werden zwei Buchungen angelegt: eine Ausgabe auf dem Quellkonto und eine Einnahme auf dem
+  Zielkonto. Umbuchungen zählen nicht als Ausgabe und tauchen nicht in Budgets oder
+  Kategorie-Auswertungen auf.
+</p>

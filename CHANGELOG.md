@@ -2,6 +2,21 @@
 
 Alle nennenswerten Änderungen werden hier dokumentiert. Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionierung an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.11.0] - 2026-11-20
+
+### Hinzugefügt
+
+- Eigene Seite **Umbuchungen** zum Verschieben von Guthaben zwischen zwei Konten
+- Umbuchung besteht aus zwei verknüpften Buchungen (Ausgabe im Quellkonto, Einnahme im Zielkonto) mit konsistenten Kontoständen
+- Bearbeiten und Löschen einer Umbuchung aktualisiert/entfernt beide Buchungen gemeinsam
+- Umbuchungen werden aus Einnahme/Ausgabe, Budgets und Kategorie-Auswertungen ausgeschlossen, bleiben aber in Kontoständen und Saldo-Verlauf sichtbar
+- Migration 003, eigene API `/api/transfers` und 8 neue Tests
+
+### Geändert
+
+- Buchungen mit Herkunft `transfer` sind in der Buchungsliste gekennzeichnet und zeigen statt der Einzelbearbeitung einen Link zur Umbuchung
+- Konten mit Umbuchungen lassen sich nicht löschen; Hinweise in FAQ und Add-on-README ergänzt
+
 ## [0.10.1] - 2026-11-20
 
 ### Hinzugefügt

@@ -4,13 +4,14 @@
 
 Ein schlankes, vollständig lokales Home-Assistant-Add-on für persönliche Finanzen. Kein Cloud-Konto, keine Bankverbindung, keine zusätzlichen Add-ons – nur ein Webserver-Prozess, eine SQLite-Datei und eine Oberfläche in Home Assistant.
 
-> **Status:** Version **0.9.0** ist veröffentlicht und auf dem Raspberry Pi 4 getestet. **0.10.1** ergänzt Bearbeitung, Fixkosten und die Markierung des aktiven Menüpunkts. Plan: [ROADMAP.md](ROADMAP.md).
+> **Status:** Version **0.9.0** ist veröffentlicht und auf dem Raspberry Pi 4 getestet. **0.11.0** ergänzt Bearbeitung, Fixkosten, aktive Navigation und Umbuchungen zwischen Konten. Plan: [ROADMAP.md](ROADMAP.md).
 
 ## Umfang in v1
 
 - Konten und Kategorien verwalten und bearbeiten
 - Buchungen manuell erfassen, bearbeiten und löschen
 - Monatliche und jährliche Fixkosten mit automatischer Buchung ([Anleitung](docs/fixkosten.md))
+- Umbuchungen zwischen Konten als zusammenhängendes Buchungspaar ([Anleitung](docs/umbuchungen.md))
 - Budgets pro Kategorie und Monat
 - Übersicht mit Saldo, Monatsausgaben und SVG-Charts
 - 100 % lokal, Ingress-UI ohne eigene Ports und ohne eigenes Login
@@ -34,6 +35,7 @@ Ausführlich: [docs/installation.md](docs/installation.md).
 - [Datenschutz](docs/datenschutz.md)
 - [Häufige Fragen](docs/faq.md)
 - [Fixkosten und wiederkehrende Buchungen](docs/fixkosten.md)
+- [Umbuchungen zwischen Konten](docs/umbuchungen.md)
 - [Entwicklung](docs/entwicklung.md)
 - [Performance und Pi-4-Messung](docs/performance.md)
 - [Sicherheitsrichtlinie](SECURITY.md)
@@ -59,7 +61,7 @@ Die Datenbank liegt in Home Assistant unter `/data/finance.db`. Für lokale Entw
 
 Die Oberfläche ist komplett servergerendert (Jinja2) und kommt ohne JavaScript und CDN aus. Interne Endpunkte (nur innerhalb des Add-ons):
 
-- `/api/accounts`, `/api/categories`, `/api/transactions`, `/api/budgets`, `/api/recurring` – `GET`/`POST` sowie `GET`/`PUT`/`DELETE` für einzelne Datensätze
+- `/api/accounts`, `/api/categories`, `/api/transactions`, `/api/transfers`, `/api/budgets`, `/api/recurring` – `GET`/`POST` sowie `GET`/`PUT`/`DELETE` für einzelne Datensätze
 - Lesend: `/api/stats/monthly`, `/api/stats/categories`, `/api/stats/budgets`, `/api/stats/balance`
 - `/healthz` für den Supervisor-Watchdog
 
@@ -79,6 +81,7 @@ Die Repository-URL `https://github.com/karst3nl/homeassistant-finance` steht in 
 - `0.9.0`: erstes veröffentlichtes Image, vom Pi-4-Test bestätigt.
 - `0.10.0`: Bearbeitung und Fixkosten.
 - `0.10.1`: Aktiver Menüpunkt in der Navigation.
+- `0.11.0`: Umbuchungen zwischen Konten.
 
 Ein Release publiziert `.github/workflows/release.yaml`: Es baut und signiert die Images für `aarch64`/`amd64`, pusht die Version und `latest` nach GHCR und veröffentlicht das Multi-Arch-Manifest. Das GHCR-Paket ist öffentlich. Das Image wird ausschließlich über das Custom Repository installiert; ein lokaler Build ist nicht nötig.
 

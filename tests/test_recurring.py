@@ -225,7 +225,8 @@ def test_migration_erweitert_bestehende_datenbank(db_path: Path) -> None:
         columns = {row["name"] for row in connection.execute("PRAGMA table_info(transactions)")}
         assert "recurring_rule_id" in columns
         assert "recurring_period" in columns
-        assert connection.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert "transfer_id" in columns
+        assert connection.execute("PRAGMA user_version").fetchone()[0] == 3
         assert connection.execute("SELECT COUNT(*) FROM accounts").fetchone()[0] == 1
 
 

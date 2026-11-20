@@ -7,6 +7,7 @@ Ein vollständig lokales Add-on für persönliche Finanzen. Es läuft komplett a
 - Konten und Kategorien anlegen und bearbeiten
 - Einnahmen und Ausgaben manuell erfassen, filtern, bearbeiten und löschen
 - Monatliche und jährliche Fixkosten: Regeln pflegen und fällige Buchungen automatisch erzeugen
+- Umbuchungen zwischen zwei Konten als zusammenhängendes Buchungspaar
 - Budgets pro Kategorie und Monat inklusive Fortschrittsanzeige
 - Dashboard mit Saldo und Monatsausgaben
 - Auswertungen mit Monatsvergleich, Kategorie-Anteilen und Saldo-Verlauf als SVG-Charts
@@ -17,6 +18,8 @@ Ein vollständig lokales Add-on für persönliche Finanzen. Es läuft komplett a
 Zuerst unter **Konten** ein Konto anlegen (optional unter **Kategorien** eine Ausgabekategorie). Danach kann auf der Übersicht eine Ausgabe oder Einnahme eingetragen werden. Buchungen und Konten lassen sich in der jeweiligen Liste über **Bearbeiten** ändern.
 
 Wiederkehrende Posten wie Miete oder Versicherung werden unter **Fixkosten** als monatliche oder jährliche Regel angelegt. Das Add-on erzeugt die fälligen Buchungen automatisch; pausierte Regeln buchen nichts. Bereits erzeugte Buchungen bleiben erhalten, wenn eine Regel gelöscht wird.
+
+Unter **Umbuchungen** verschiebst du Guthaben zwischen zwei Konten. Finance legt dafür zwei verknüpfte Buchungen an; der Gesamtsaldo bleibt gleich. Umbuchungen zählen nicht als Einnahme oder Ausgabe und beeinflussen keine Budgets.
 
 Nach dem Start erscheint **Finanzen** in der Seitenleiste. Ein Klick öffnet die Oberfläche innerhalb von Home Assistant. Ein separates Passwort gibt es nicht – die Anmeldung läuft über Home Assistant. Das Panel ist standardmäßig nur für Admins sichtbar.
 

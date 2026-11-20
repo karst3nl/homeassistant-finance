@@ -35,6 +35,9 @@ def _list(request: Request) -> JSONResponse:
     if "account_id" in query:
         conditions.append("account_id = ?")
         parameters.append(query_int(query, "account_id"))
+    if "transfer_id" in query:
+        conditions.append("transfer_id = ?")
+        parameters.append(query_int(query, "transfer_id"))
     if "category_id" in query:
         conditions.append("category_id = ?")
         parameters.append(query_int(query, "category_id"))
@@ -107,6 +110,11 @@ async def _update(request: Request) -> JSONResponse:
         ).fetchone()
         if row is None:
             raise HTTPException(status_code=404, detail="Buchung nicht gefunden")
+        if row["transfer_id"] is not None:
+            raise HTTPException(
+                status_code=409,
+                detail="Buchung gehört zu einer Umbuchung; bitte unter /api/transfers bearbeiten",
+            )
 
         account_id = (
             required_int(payload, "account_id") if "account_id" in payload else row["account_id"]
@@ -163,9 +171,17 @@ async def _update(request: Request) -> JSONResponse:
 def _delete(request: Request) -> Response:
     transaction_id = path_id(request.path_params["transaction_id"])
     with transaction() as connection:
-        cursor = connection.execute("DELETE FROM transactions WHERE id = ?", (transaction_id,))
-    if cursor.rowcount == 0:
-        raise HTTPException(status_code=404, detail="Buchung nicht gefunden")
+        row = connection.execute(
+            "SELECT transfer_id FROM transactions WHERE id = ?", (transaction_id,)
+        ).fetchone()
+        if row is None:
+            raise HTTPException(status_code=404, detail="Buchung nicht gefunden")
+        if row["transfer_id"] is not None:
+            raise HTTPException(
+                status_code=409,
+                detail="Buchung gehört zu einer Umbuchung; bitte unter /api/transfers löschen",
+            )
+        connection.execute("DELETE FROM transactions WHERE id = ?", (transaction_id,))
     return Response(status_code=204)
 
 

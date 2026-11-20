@@ -36,7 +36,8 @@ def dashboard_data() -> dict:
             """
             SELECT COALESCE(SUM(-amount_cents), 0)
             FROM transactions
-            WHERE amount_cents < 0 AND substr(booking_date, 1, 7) = ?
+            WHERE amount_cents < 0 AND source <> 'transfer'
+              AND substr(booking_date, 1, 7) = ?
             """,
             (period,),
         ).fetchone()[0]
@@ -45,7 +46,8 @@ def dashboard_data() -> dict:
             for row in connection.execute(
                 """
                 SELECT t.id, t.booking_date, t.amount_cents, t.counterparty,
-                       t.description, a.name AS account_name, c.name AS category_name
+                       t.description, t.source, t.transfer_id,
+                       a.name AS account_name, c.name AS category_name
                 FROM transactions t
                 JOIN accounts a ON a.id = t.account_id
                 LEFT JOIN categories c ON c.id = t.category_id
@@ -97,7 +99,7 @@ def filtered_transactions(filters: dict[str, str]) -> list[dict]:
         rows = connection.execute(
             f"""
             SELECT t.id, t.booking_date, t.amount_cents, t.counterparty,
-                   t.description, t.source, a.name AS account_name,
+                   t.description, t.source, t.transfer_id, a.name AS account_name,
                    c.name AS category_name
             FROM transactions t
             JOIN accounts a ON a.id = t.account_id

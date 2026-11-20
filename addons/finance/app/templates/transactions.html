@@ -39,6 +39,7 @@
           {{ entry.counterparty or entry.description or '–' }}
           {% if entry.description and entry.counterparty %}<small>{{ entry.description }}</small>{% endif %}
           {% if entry.source == 'recurring' %}<small>automatisch (Fixkosten)</small>{% endif %}
+          {% if entry.transfer_id %}<small>Umbuchung</small>{% endif %}
         </td>
         <td>{{ entry.account_name }}</td>
         <td>{{ entry.category_name or '–' }}</td>
@@ -47,10 +48,14 @@
         </td>
         <td class="right">
           <div class="table-actions">
+            {% if entry.transfer_id %}
+            <a href="ui/transfers/{{ entry.transfer_id }}/edit" title="Umbuchung bearbeiten">Umbuchung</a>
+            {% else %}
             <a href="ui/transactions/{{ entry.id }}/edit" title="Buchung bearbeiten">Bearbeiten</a>
             <form method="post" action="ui/transactions/{{ entry.id }}/delete" class="inline">
               <button type="submit" class="danger" title="Buchung löschen">×</button>
             </form>
+            {% endif %}
           </div>
         </td>
       </tr>

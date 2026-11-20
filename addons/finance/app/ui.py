@@ -14,6 +14,7 @@ from pathlib import Path
 from urllib.parse import parse_qs
 
 import recurring
+import transfers
 from charts import bar_chart, donut_chart, line_chart
 from db import transaction
 from money import cents_to_decimal, format_cents, parse_cents
@@ -59,6 +60,7 @@ def _base(request: Request) -> str:
 
 _NAV_PREFIXES = (
     ("ui/transactions", "transactions"),
+    ("ui/transfers", "transfers"),
     ("ui/budgets", "budgets"),
     ("ui/recurring", "recurring"),
     ("ui/reports", "reports"),
@@ -278,11 +280,19 @@ def transactions_page(request: Request):
 
 
 def delete_transaction(request: Request) -> Response:
+    transaction_id = path_id(request.path_params["transaction_id"])
     with transaction() as connection:
-        connection.execute(
-            "DELETE FROM transactions WHERE id = ?",
-            (path_id(request.path_params["transaction_id"]),),
-        )
+        row = connection.execute(
+            "SELECT transfer_id FROM transactions WHERE id = ?", (transaction_id,)
+        ).fetchone()
+        if row is None:
+            raise HTTPException(status_code=404, detail="Buchung nicht gefunden")
+        if row["transfer_id"] is not None:
+            raise HTTPException(
+                status_code=409,
+                detail="Umbuchungen müssen unter Umbuchungen gelöscht werden.",
+            )
+        connection.execute("DELETE FROM transactions WHERE id = ?", (transaction_id,))
     return _redirect(request, "ui/transactions")
 
 
@@ -313,11 +323,30 @@ def _transaction_edit_context(transaction_id: int, form: dict | None = None) -> 
 
 def edit_transaction_page(request: Request):
     transaction_id = path_id(request.path_params["transaction_id"])
+    with transaction() as connection:
+        row = connection.execute(
+            "SELECT transfer_id FROM transactions WHERE id = ?", (transaction_id,)
+        ).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Buchung nicht gefunden")
+    if row["transfer_id"] is not None:
+        return _redirect(request, f"ui/transfers/{row['transfer_id']}/edit")
     return _render(request, "transaction_edit.html", _transaction_edit_context(transaction_id))
 
 
 async def update_transaction(request: Request) -> Response:
     transaction_id = path_id(request.path_params["transaction_id"])
+    with transaction() as connection:
+        existing = connection.execute(
+            "SELECT transfer_id FROM transactions WHERE id = ?", (transaction_id,)
+        ).fetchone()
+    if existing is None:
+        raise HTTPException(status_code=404, detail="Buchung nicht gefunden")
+    if existing["transfer_id"] is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Umbuchungen müssen unter Umbuchungen bearbeitet werden.",
+        )
     form = await _form(request)
     values, errors = _transaction_values(form)
     if not errors:
@@ -358,6 +387,123 @@ async def update_transaction(request: Request) -> Response:
             status_code=400,
         )
     return _redirect(request, "ui/transactions")
+
+
+def _transfer_values(form: dict[str, str]) -> tuple[dict, list[str]]:
+    """Formularwerte einer Umbuchung validieren (anlegen und bearbeiten)."""
+    errors: list[str] = []
+
+    from_account_id = _positive_id(form.get("from_account_id", ""))
+    to_account_id = _positive_id(form.get("to_account_id", ""))
+    if from_account_id is None:
+        errors.append("Bitte ein Quellkonto auswählen.")
+    if to_account_id is None:
+        errors.append("Bitte ein Zielkonto auswählen.")
+    if from_account_id and to_account_id and from_account_id == to_account_id:
+        errors.append("Quell- und Zielkonto müssen unterschiedlich sein.")
+
+    try:
+        booking_date = parse_date(form.get("booking_date", ""), "booking_date")
+    except HTTPException:
+        booking_date = ""
+        errors.append("Bitte ein gültiges Datum angeben.")
+
+    try:
+        amount = parse_cents(form.get("amount", ""))
+    except ValueError:
+        amount = 0
+        errors.append("Bitte einen gültigen Betrag angeben.")
+    if amount <= 0:
+        errors.append("Der Betrag muss größer als 0 sein.")
+
+    values = {
+        "booking_date": booking_date,
+        "amount_cents": amount,
+        "from_account_id": from_account_id,
+        "to_account_id": to_account_id,
+        "description": form.get("description", "").strip(),
+    }
+    return values, errors
+
+
+def _transfer_context() -> dict:
+    return {
+        "transfers": transfers.list_transfers(),
+        "accounts": _account_options(),
+        "today": date.today().isoformat(),
+    }
+
+
+def transfers_page(request: Request):
+    return _render(request, "transfers.html", _transfer_context())
+
+
+async def create_transfer(request: Request) -> Response:
+    form = await _form(request)
+    values, errors = _transfer_values(form)
+    if not errors:
+        try:
+            transfers.create_transfer(values)
+        except transfers.TransferError as exc:
+            errors.append(str(exc))
+
+    if errors:
+        return _render(
+            request,
+            "transfers.html",
+            {**_transfer_context(), "errors": errors, "form": form},
+            status_code=400,
+        )
+    return _redirect(request, "ui/transfers")
+
+
+def _transfer_edit_context(transfer_id: int, form: dict | None = None) -> dict:
+    transfer = transfers.get_transfer(transfer_id)
+    if transfer is None:
+        raise HTTPException(status_code=404, detail="Umbuchung nicht gefunden")
+    if form is None:
+        form = {
+            **transfer,
+            "amount": _amount_input(transfer["amount_cents"]),
+            "from_account_id": str(transfer["from_account_id"]),
+            "to_account_id": str(transfer["to_account_id"]),
+        }
+    return {**_transfer_context(), "transfer": transfer, "form": form}
+
+
+def edit_transfer_page(request: Request):
+    transfer_id = path_id(request.path_params["transfer_id"])
+    return _render(request, "transfer_edit.html", _transfer_edit_context(transfer_id))
+
+
+async def update_transfer(request: Request) -> Response:
+    transfer_id = path_id(request.path_params["transfer_id"])
+    if transfers.get_transfer(transfer_id) is None:
+        raise HTTPException(status_code=404, detail="Umbuchung nicht gefunden")
+    form = await _form(request)
+    values, errors = _transfer_values(form)
+    if not errors:
+        try:
+            transfers.update_transfer(transfer_id, values)
+        except transfers.TransferError as exc:
+            errors.append(str(exc))
+
+    if errors:
+        return _render(
+            request,
+            "transfer_edit.html",
+            {**_transfer_edit_context(transfer_id, form), "errors": errors},
+            status_code=400,
+        )
+    return _redirect(request, "ui/transfers")
+
+
+def delete_transfer(request: Request) -> Response:
+    try:
+        transfers.delete_transfer(path_id(request.path_params["transfer_id"]))
+    except transfers.TransferError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return _redirect(request, "ui/transfers")
 
 
 def accounts_page(request: Request):
@@ -491,7 +637,7 @@ def delete_account(request: Request) -> Response:
                 **_accounts_with_balances(),
                 "errors": [
                     "Das Konto kann nicht gelöscht werden, solange Buchungen darauf existieren "
-                    "(auch geplante Fixkosten zählen)."
+                    "(auch geplante Fixkosten und Umbuchungen zählen)."
                 ],
             },
             status_code=409,
@@ -820,6 +966,11 @@ routes = [
     Route("/ui/transactions/{transaction_id}/delete", delete_transaction, methods=["POST"]),
     Route("/ui/transactions/{transaction_id}/edit", edit_transaction_page, methods=["GET"]),
     Route("/ui/transactions/{transaction_id}", update_transaction, methods=["POST"]),
+    Route("/ui/transfers", transfers_page, methods=["GET"]),
+    Route("/ui/transfers", create_transfer, methods=["POST"]),
+    Route("/ui/transfers/{transfer_id}/edit", edit_transfer_page, methods=["GET"]),
+    Route("/ui/transfers/{transfer_id}", update_transfer, methods=["POST"]),
+    Route("/ui/transfers/{transfer_id}/delete", delete_transfer, methods=["POST"]),
     Route("/ui/accounts", accounts_page, methods=["GET"]),
     Route("/ui/accounts", create_account, methods=["POST"]),
     Route("/ui/accounts/{account_id}/delete", delete_account, methods=["POST"]),

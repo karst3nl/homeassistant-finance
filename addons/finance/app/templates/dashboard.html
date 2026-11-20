@@ -64,7 +64,10 @@
       {% for entry in recent %}
       <tr>
         <td class="mono">{{ entry.booking_date }}</td>
-        <td>{{ entry.counterparty or entry.description or '–' }}</td>
+        <td>
+          {{ entry.counterparty or entry.description or '–' }}
+          {% if entry.transfer_id %}<small>Umbuchung</small>{% endif %}
+        </td>
         <td>{{ entry.account_name }}</td>
         <td>{{ entry.category_name or '–' }}</td>
         <td class="right mono {{ 'negative' if entry.amount_cents < 0 else 'positive' }}">

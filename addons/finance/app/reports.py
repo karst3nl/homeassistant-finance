@@ -84,7 +84,7 @@ def monthly_comparison(count: int = 6, end_period: str | None = None) -> list[di
                   COALESCE(SUM(CASE WHEN amount_cents < 0
                                     THEN -amount_cents ELSE 0 END), 0) AS expense_cents
                 FROM transactions
-                WHERE booking_date BETWEEN ? AND ?
+                WHERE booking_date BETWEEN ? AND ? AND source <> 'transfer'
                 """,
                 (start, stop),
             ).fetchone()
@@ -117,6 +117,7 @@ def category_breakdown(period: str | None = None, kind: str = "expense") -> list
             FROM transactions t
             LEFT JOIN categories c ON c.id = t.category_id
             WHERE t.booking_date BETWEEN ? AND ? AND t.amount_cents {comparison}
+              AND t.source <> 'transfer'
             GROUP BY c.id
             ORDER BY total_cents DESC, name COLLATE NOCASE
             """,
@@ -153,6 +154,7 @@ def budget_progress(period: str | None = None) -> list[dict]:
             JOIN categories c ON c.id = b.category_id
             LEFT JOIN transactions t ON t.category_id = b.category_id
                  AND t.booking_date BETWEEN ? AND ? AND t.amount_cents < 0
+                 AND t.source <> 'transfer'
             WHERE b.period = ?
             GROUP BY b.id
             ORDER BY c.name COLLATE NOCASE

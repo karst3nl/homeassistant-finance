@@ -8,6 +8,7 @@
 - `addons/finance/app/ui.py` – servergerenderte Oberfläche
 - `addons/finance/app/stats.py`, `reports.py`, `charts.py` – Auswertungen und SVG-Charts
 - `addons/finance/app/recurring.py` – Fixkosten-Regeln, Terminlogik und Buchungserzeugung
+- `addons/finance/app/transfers.py` – Umbuchungen und die beiden verknüpften Buchungen
 - `addons/finance/app/migrations/` – nummerierte SQLite-Migrationen
 - `tests/` – pytest-Integrationstests gegen temporäre Datenbanken
 
@@ -43,7 +44,7 @@ Optional: `python scripts/bench.py` misst die Oberfläche gegen 500 Beispielbuch
 
 ## Migrationen
 
-Neue SQL-Dateien in `addons/finance/app/migrations/` mit aufsteigender Nummer (zuletzt `002_recurring.sql`) anlegen. `init_db()` liest `PRAGMA user_version` und wendet alle neueren Migrationen beim Start an. Bestehende Datenbanken werden nicht gelöscht. Für jede Migration sollte ein Test gegen eine Datenbank im alten Schema existieren (siehe `tests/test_recurring.py`).
+Neue SQL-Dateien in `addons/finance/app/migrations/` mit aufsteigender Nummer (zuletzt `003_transfers.sql`) anlegen. `init_db()` liest `PRAGMA user_version` und wendet alle neueren Migrationen beim Start an. Bestehende Datenbanken werden nicht gelöscht. Für jede Migration sollte ein Test gegen eine Datenbank im alten Schema existieren (siehe `tests/test_recurring.py` und `tests/test_transfers.py`).
 
 ## Release
 

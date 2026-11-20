@@ -11,7 +11,7 @@ Ein vollständig lokales Add-on für persönliche Finanzen. Es läuft komplett a
 - Umbuchungen zwischen zwei Konten als zusammenhängendes Buchungspaar
 - Herunterladbare Backups: aktuelle Datenbank direkt speichern oder Kopien verwalten
 - Budgets pro Kategorie und Monat inklusive Fortschrittsanzeige
-- Dashboard mit Saldo und Monatsausgaben
+- Dashboard mit frei verfügbarem Geld, Saldo und Monatsausgaben
 - Auswertungen mit Monatsvergleich, Kategorie-Anteilen und Saldo-Verlauf als SVG-Charts
 - Bedienung rein über die Oberfläche – servergerendert, ohne JavaScript und ohne CDN
 - Desktop-Layout bleibt erhalten; auf kleinen Touch-Displays passt sich Navigation und Tabellenansicht automatisch an
@@ -25,6 +25,8 @@ Wiederkehrende Posten wie Miete oder Versicherung werden unter **Fixkosten** als
 Dein Gehalt erfasst du getrennt davon unter **Monatsgehalt** – dort mit festem monatlichem Auszahlungstag, Betrag und Konto. Es wird als normale Einnahme gebucht und erscheint in Saldo und Auswertungen, aber nicht in der Fixkostenliste.
 
 Unter **Umbuchungen** verschiebst du Guthaben zwischen zwei Konten. Finance legt dafür zwei verknüpfte Buchungen an; der Gesamtsaldo bleibt gleich. Umbuchungen zählen nicht als Einnahme oder Ausgabe und beeinflussen keine Budgets.
+
+Oben auf der Übersicht steht **frei verfügbares Geld**: aktives Monatsgehalt minus geplante Fixkosten und geplante Umbuchungen. Der Wert ist ein Planungswert; bereits gebuchte Beträge und der aktuelle Kontostand ändern ihn nicht.
 
 Unter **Backups** lädst du die aktuelle Datenbank als SQLite-Datei herunter oder speicherst eine Kopie im Add-on, die du später erneut laden und löschen kannst. Die Dateien sind konsistent – auch während Buchungen geschrieben werden.
 

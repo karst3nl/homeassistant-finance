@@ -8,8 +8,23 @@ from __future__ import annotations
 
 from datetime import date
 
+import recurring
+import salary
 from db import transaction
 from reports import budget_progress, current_period
+
+
+def free_cash_cents() -> int:
+    """Geplantes frei verfügbares Geld pro Monat in Cent.
+
+    Berechnung: aktives Monatsgehalt abzüglich geplanter Fixkosten und
+    geplanter Umbuchungen. Wiederkehrende Einnahmen außer Gehalt und bereits
+    gebuchte Beträge bleiben außen vor; der Wert ist ein Planungswert.
+    """
+    plan = recurring.planned_summary()
+    return (
+        salary.planned_summary()["monthly_cents"] - plan["expense_cents"] - plan["transfer_cents"]
+    )
 
 
 def dashboard_data() -> dict:
@@ -67,6 +82,7 @@ def dashboard_data() -> dict:
     return {
         "accounts": accounts,
         "total_cents": total_cents,
+        "free_cash_cents": free_cash_cents(),
         "month_spend_cents": month_spend_cents,
         "recent": recent,
         "expense_categories": expense_categories,

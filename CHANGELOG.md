@@ -2,6 +2,18 @@
 
 Alle nennenswerten Änderungen werden hier dokumentiert. Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionierung an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.15.0] - 2026-11-20
+
+### Hinzugefügt
+
+- Die Übersicht zeigt oben die Kennzahl **Frei verfügbares Geld**
+- Berechnung als Planungswert: aktives Monatsgehalt minus geplante Fixkosten und geplante Umbuchungen
+- Negative Werte werden farblich hervorgehoben; ohne Regeln wird `0,00 EUR` angezeigt
+
+### Geändert
+
+- Die Übersichtskarten nennen jetzt die Berechnungsgrundlage direkt unter dem Wert
+
 ## [0.14.0] - 2026-11-20
 
 ### Hinzugefügt

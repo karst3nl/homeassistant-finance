@@ -3,6 +3,13 @@
 {% block content %}
 <section class="cards">
   <article class="card">
+    <h2>Frei verfügbares Geld</h2>
+    <p class="value {{ 'negative' if free_cash_cents < 0 else ('positive' if free_cash_cents > 0 else '') }}">
+      {{ free_cash_cents | cents }}
+    </p>
+    <small>Gehalt − Fixkosten − geplante Umbuchungen</small>
+  </article>
+  <article class="card">
     <h2>Saldo gesamt</h2>
     <p class="value">{{ total_cents | cents }}</p>
   </article>

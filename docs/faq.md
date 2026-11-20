@@ -36,6 +36,10 @@ Die Regeln unter **Fixkosten** enthalten nur Name, Betrag, Intervall und Fällig
 
 Weil es einen eigenen Menüpunkt **Monatsgehalt** gibt. Dort legst du eine monatliche Einnahme mit festem Auszahlungstag an; sie wird automatisch gebucht und zählt normal zu Einnahmen und Auswertungen, erscheint aber nicht in der Fixkostenliste. Details: [monatsgehalt.md](monatsgehalt.md).
 
+## Was bedeutet „frei verfügbares Geld“?
+
+Seit 0.15.0 zeigt die Übersicht oben einen Planungswert: aktives Monatsgehalt minus geplante Fixkosten und geplante Umbuchungen. Jährliche Regeln gehen mit einem Zwölftel ihres Betrags ein. Andere wiederkehrende Einnahmen, bereits gebuchte Beträge und der aktuelle Kontostand werden bewusst nicht berücksichtigt. Ein negativer Wert wird rot angezeigt.
+
 ## Wie funktionieren Umbuchungen zwischen Konten?
 
 Unter **Umbuchungen** legst du fest, von welchem Konto wie viel auf welches andere Konto verschoben wird. Finance erzeugt daraus zwei verknüpfte Buchungen: eine Ausgabe im Quellkonto und eine Einnahme im Zielkonto. Der Gesamtsaldo bleibt dadurch gleich. Umbuchungen werden nicht als Einnahme/Ausgabe gewertet und tauchen daher nicht in Budgets oder Kategorie-Auswertungen auf. Details: [umbuchungen.md](umbuchungen.md).

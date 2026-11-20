@@ -1,6 +1,6 @@
 [project]
 name = "homeassistant-finance"
-version = "0.14.0"
+version = "0.15.0"
 description = "Schlankes Home-Assistant-Add-on für persönliche Finanzen"
 requires-python = ">=3.14"
 

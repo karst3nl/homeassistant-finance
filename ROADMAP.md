@@ -1,7 +1,7 @@
 # Roadmap: Home-Assistant-Finance
 
 **Stand:** 2026-11-20  
-**Status:** Phase 0–5 abgeschlossen (0.9.0 veröffentlicht und auf dem Pi 4 getestet); Phase 6 ergänzt Umbuchungen (0.11.0), Phase 7 herunterladbare Backups (0.12.0), Phase 8 mobile/touchfreundliche Oberfläche (0.12.1), Phase 9 das Monatsgehalt als eigenen Bereich (0.13.0), Phase 10 wiederkehrende Umbuchungen in den Fixkosten (0.14.0)  
+**Status:** Phase 0–5 abgeschlossen (0.9.0 veröffentlicht und auf dem Pi 4 getestet); Phase 6 ergänzt Umbuchungen (0.11.0), Phase 7 herunterladbare Backups (0.12.0), Phase 8 mobile/touchfreundliche Oberfläche (0.12.1), Phase 9 das Monatsgehalt als eigenen Bereich (0.13.0), Phase 10 wiederkehrende Umbuchungen in den Fixkosten (0.14.0), Phase 11 die Kennzahl „Frei verfügbares Geld“ (0.15.0)  
 **Repo:** GitHub, Custom Repository für Home Assistant
 
 ---
@@ -18,6 +18,7 @@
 | Umbuchungen | **Eigene Seite + verknüpftes Buchungspaar** (ab 0.11.0) | Zwei Buchungen mit `transfer_id`, Netto-Saldo 0; aus Einnahme/Ausgabe und Budgets ausgeschlossen |
 | Monatsgehalt | **Eigene Seite + eigene Gehaltsregeln** (ab 0.13.0) | Monatliche Einnahme mit `source = 'salary'` und Idempotenz pro Monat; nicht unter Fixkosten |
 | Wiederkehrende Umbuchung | **Fixkostenregel mit Zielkonto** (ab 0.14.0) | Erzeugt ein `transfers`-Paar; Herkunft und Zeitraum am Transfer, keine Einnahme/Ausgabe |
+| Frei verfügbares Geld | **Kennzahl auf der Übersicht** (ab 0.15.0) | Gehalt − Fixkosten − geplante Umbuchungen; Planungswert ohne gebuchte Beträge |
 
 > **Begriffsklärung:** „Reine UI" bedeutet: Es entstehen keine HA-Entitäten und keine Automatisierungsdaten. Die Oberfläche kommuniziert intern weiterhin über HTTP-Endpunkte mit dem Backend im selben Container – das ist Technik innerhalb des Add-ons, keine HA-Integration.
 
@@ -44,6 +45,7 @@ Ein vollständig lokales, quelloffenes Add-on zur Verwaltung persönlicher Finan
 | Nach v1 (0.12.1) | Responsive, touchfreundliche Darstellung für die HA-Mobile-App |
 | Nach v1 (0.13.0) | Monatsgehalt als eigener Menüpunkt, getrennt von den Fixkosten |
 | Nach v1 (0.14.0) | Wiederkehrende Umbuchungen als Option einer Fixkostenregel |
+| Nach v1 (0.15.0) | Planungswert „Frei verfügbares Geld“ oben auf der Übersicht |
 
 **Ressourcenziele (auf dem Pi 4 messbar):** Image < 80 MB · RAM < 80 MB · Start < 5 s · CPU im Leerlauf ~0 %.
 
